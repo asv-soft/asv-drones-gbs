@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Asv.Cfg" Version="1.4.6" />
+      <PackageReference Include="Asv.Common" Version="1.4.6" />
+      <PackageReference Include="Asv.Mavlink" Version="1.1.10" />
+      <PackageReference Include="NLog" Version="5.1.2" />
+      <PackageReference Include="Spectre.Console" Version="0.46.0" />
+      <PackageReference Include="Spectre.Console.Cli" Version="0.46.0" />
+      <PackageReference Include="System.ComponentModel.Composition" Version="7.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Asv.Drones.Gbs.Core\Asv.Drones.Gbs.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="linux_service.txt" />
+      <None Update="NLog.config">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+</Project>

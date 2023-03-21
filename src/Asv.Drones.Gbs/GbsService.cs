@@ -5,6 +5,7 @@ using System.Reflection;
 using Asv.Cfg;
 using Asv.Common;
 using Asv.Drones.Gbs.Core;
+using Asv.Drones.Gbs.Ublox;
 using Asv.Mavlink;
 using NLog;
 
@@ -51,8 +52,9 @@ internal class GbsService : DisposableOnceWithCancel
     {
         get
         {
-            yield return typeof(StationBootstrapper).Assembly;
-            yield return typeof(IModule).Assembly;
+            yield return typeof(GbsService).Assembly;           // [this]
+            yield return typeof(IModule).Assembly;              // Core
+            yield return typeof(UbloxRtkModule).Assembly;       // Ublox
         }
     }
 }

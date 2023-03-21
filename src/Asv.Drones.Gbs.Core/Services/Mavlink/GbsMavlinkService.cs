@@ -36,7 +36,7 @@ public class GbsServerServiceConfig
 #else
             new MavlinkPortConfig
             {
-                ConnectionString = "serial:/dev/ttyACM0?br=115200",
+                ConnectionString = "serial:/dev/ttyS1?br=115200",
                 Name = "Modem",
                 IsEnabled = true
             },
@@ -61,6 +61,7 @@ public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
 {
     public static Logger Logger = LogManager.GetCurrentClassLogger();
     
+    [ImportingConstructor]
     public GbsMavlinkService(IConfiguration config, IPacketSequenceCalculator sequenceCalculator)
     {
         Router = new MavlinkRouter(_ =>

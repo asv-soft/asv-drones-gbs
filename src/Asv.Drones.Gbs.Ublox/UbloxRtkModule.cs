@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using Asv.Cfg;
 using Asv.Common;
 using Asv.Drones.Gbs.Core;
+using Asv.Drones.Gbs.Core.Vehicles;
 using Asv.Gnss;
 using Asv.Mavlink;
 using Asv.Mavlink.Server;
@@ -19,6 +20,14 @@ public class UbloxRtkModuleConfig
     public string ConnectionString { get; set; } = "serial:/dev/ttyACM0?br=115200";
     public int GbsStatusRateMs { get; set; } = 1000;
     public int UpdateStatusFromDeviceRateMs { get; set; } = 1000;
+
+    public ushort[] RtcmV3MessagesIdsToSend { get; set; } = {
+        1005 , 1006 , 1074 , 1077 ,
+        1084 , 1087 , 1094 , 1097 ,
+        1124 , 1127 , 1230 , 4072
+    };
+
+    public byte MessageRateHz { get; set; } = 1;
 }
 
 [Export(typeof(IModule))]
@@ -26,6 +35,7 @@ public class UbloxRtkModuleConfig
 public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
 {
     private readonly IGbsMavlinkService _svc;
+    private readonly IVehicleServices _vehicle;
     private readonly UbloxRtkModuleConfig _config;
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private readonly UbxDevice _device;
@@ -34,13 +44,16 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
     private int _busy;
     private bool _isInit;
     private int _updateStatusInProgress;
-    private readonly RxValue<UbxNavSvin> _svIn;  
+    private readonly RxValue<UbxNavSvin> _svIn;
+    private readonly HashSet<ushort> _rtcmV3Filter;
+    private int _sendRtcmFlag;
 
     [ImportingConstructor]
-    public UbloxRtkModule(IGbsMavlinkService svc,IConfiguration configuration)
+    public UbloxRtkModule(IGbsMavlinkService svc,IConfiguration configuration, IVehicleServices vehicle)
     {
         if (configuration == null) throw new ArgumentNullException(nameof(configuration));
         _svc = svc ?? throw new ArgumentNullException(nameof(svc));
+        _vehicle = vehicle ?? throw new ArgumentNullException(nameof(vehicle));
         _config = configuration.Get<UbloxRtkModuleConfig>();
         // if disabled => do nothing
         if (_config.IsEnabled == false)
@@ -48,12 +61,16 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
             _logger.Warn("UBlox RTK module is disbaled and will be ignored");
             return;
         }
-        
+
+        _rtcmV3Filter = new HashSet<ushort>(_config.RtcmV3MessagesIdsToSend);
+        _svIn = new RxValue<UbxNavSvin>().DisposeItWith(Disposable);
         // start to init device
         _svc.Server.StatusText.Info("Connecting to GNSS device...");
         _device = new UbxDevice(_config.ConnectionString).DisposeItWith(Disposable);
-        _device.Connection.Filter<UbxNavSvin>().Subscribe(_svIn).DisposeItWith(Disposable);
         
+        _device.Connection.Filter<UbxNavSvin>().Select(_=> _ as UbxNavSvin).Subscribe(_svIn).DisposeItWith(Disposable);
+        _device.Connection.GetRtcmV3RawMessages().Where(_=>_rtcmV3Filter.Contains(_.MessageId)).Subscribe(SendRtcm)
+            .DisposeItWith(Disposable);
         
         _state = new RxValue<AsvGbsState>(AsvGbsState.AsvGbsStateLoading).DisposeItWith(Disposable);
         _position = new RxValue<GeoPoint>(GeoPoint.Zero).DisposeItWith(Disposable);
@@ -65,6 +82,23 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
             .Subscribe(UpdateStatus)
             .DisposeItWith(Disposable);
 
+    }
+
+    private void SendRtcm(RtcmV3RawMessage msg)
+    {
+        if (_isInit == false) return;
+        if (Interlocked.CompareExchange(ref _sendRtcmFlag, 1, 0) != 0)
+        {
+            return;
+        }
+        try
+        {
+            _vehicle.SendRtcmData(msg.RawData, msg.RawData.Length, CancellationToken.None).Wait();
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _sendRtcmFlag, 0);
+        }
     }
 
     private async void UpdateStatus(long l)
@@ -118,7 +152,35 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
             _state.OnNext(AsvGbsState.AsvGbsStateLoading);
             var ver = await _device.GetMonVer();
             _svc.Server.StatusText.Debug($"Found GNSS HW:{ver.Hardware}, SW:{ver.Software}, EXT:{string.Join(",", ver.Extensions)}");
-            await _device.SetupByDefault();
+            await _device.SetStationaryMode(false, _config.MessageRateHz);
+            await _device.TurnOffNmea(CancellationToken.None);
+            // surveyin msg - for feedback
+            await _device.SetMessageRate<UbxNavSvin>(_config.MessageRateHz);
+            // pvt msg - for feedback
+            await _device.SetMessageRate<UbxNavPvt>(_config.MessageRateHz);
+            // 1005 - 5s
+            await _device.SetMessageRate((byte)UbxHelper.ClassIDs.RTCM3, 0x05, 5);
+            
+            await _device.SetupRtcmMSM4Rate(_config.MessageRateHz,default);
+            await _device.SetupRtcmMSM7Rate(0,default);
+            
+            // 1230 - 5s
+            await _device.SetMessageRate((byte)UbxHelper.ClassIDs.RTCM3, 0xE6, 5);
+            
+            // NAV-VELNED - 1s
+            
+            await _device.SetMessageRate((byte)UbxHelper.ClassIDs.NAV, 0x12, _config.MessageRateHz);
+            
+            // rxm-raw/rawx - 1s
+            await _device.SetMessageRate((byte)UbxHelper.ClassIDs.RXM, 0x15, _config.MessageRateHz);
+            //await SetMessageRate((byte)UbxHelper.ClassIDs.RXM, 0x10, 1, cancel);
+            
+            // rxm-sfrb/sfrb - 2s
+            await _device.SetMessageRate((byte)UbxHelper.ClassIDs.RXM, 0x13, 2, default);
+            //await SetMessageRate((byte)UbxHelper.ClassIDs.RXM, 0x11, 2, cancel);
+            
+            // mon-hw - 2s
+            await _device.SetMessageRate((byte)UbxHelper.ClassIDs.MON, 0x09, 2, default);
             _state.OnNext(AsvGbsState.AsvGbsStateIdleMode);
             _isInit = true;
         }

@@ -6,6 +6,7 @@ using Asv.Cfg;
 using Asv.Common;
 using Asv.Drones.Gbs.Core;
 using Asv.Drones.Gbs.Ublox;
+using Asv.Drones.Gbs.VirtualGnss;
 using Asv.Mavlink;
 using NLog;
 
@@ -55,6 +56,7 @@ internal class GbsService : DisposableOnceWithCancel
             yield return typeof(GbsService).Assembly;           // [this]
             yield return typeof(IModule).Assembly;              // Core
             yield return typeof(UbloxRtkModule).Assembly;       // Ublox
+            yield return typeof(VirtualGnssModule).Assembly;    // VirualGnss
         }
     }
 }

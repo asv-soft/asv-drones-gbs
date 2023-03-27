@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Gbs.Core", "Asv.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Gbs.Ublox", "Asv.Drones.Gbs.Ublox\Asv.Drones.Gbs.Ublox.csproj", "{F2E34F2E-E291-48F4-B823-0F736C7798AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Gbs.VirtualGnss", "Asv.Drones.Gbs.VirtualGnss\Asv.Drones.Gbs.VirtualGnss.csproj", "{F432BCC3-0F7F-4E95-A634-1F84DC5550A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{F2E34F2E-E291-48F4-B823-0F736C7798AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2E34F2E-E291-48F4-B823-0F736C7798AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2E34F2E-E291-48F4-B823-0F736C7798AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F432BCC3-0F7F-4E95-A634-1F84DC5550A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F432BCC3-0F7F-4E95-A634-1F84DC5550A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F432BCC3-0F7F-4E95-A634-1F84DC5550A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F432BCC3-0F7F-4E95-A634-1F84DC5550A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

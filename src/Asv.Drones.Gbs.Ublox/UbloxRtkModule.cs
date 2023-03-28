@@ -28,18 +28,18 @@ public class UbloxRtkModuleConfig
     };
 
     public byte MessageRateHz { get; set; } = 1;
+    public int ReconnectTimeoutMs { get; set; } = 10_000;
 }
 
 [Export(typeof(IModule))]
 [PartCreationPolicy(CreationPolicy.Shared)]
-public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
+public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
 {
     private readonly IGbsMavlinkService _svc;
     private readonly IVehicleServices _vehicle;
     private readonly UbloxRtkModuleConfig _config;
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private readonly UbxDevice _device;
-    private readonly RxValue<AsvGbsState> _state;
     private readonly RxValue<GeoPoint> _position;
     private int _busy;
     private bool _isInit;
@@ -47,6 +47,8 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
     private readonly RxValue<UbxNavSvin> _svIn;
     private readonly HashSet<ushort> _rtcmV3Filter;
     private int _sendRtcmFlag;
+    private readonly RxValue<AsvGbsCustomMode> _mode;
+    private readonly GbsServerDevice _server;
 
     [ImportingConstructor]
     public UbloxRtkModule(IGbsMavlinkService svc,IConfiguration configuration, IVehicleServices vehicle)
@@ -61,7 +63,7 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
             _logger.Warn("UBlox RTK module is disbaled and will be ignored");
             return;
         }
-
+        
         _rtcmV3Filter = new HashSet<ushort>(_config.RtcmV3MessagesIdsToSend);
         _svIn = new RxValue<UbxNavSvin>().DisposeItWith(Disposable);
         // start to init device
@@ -72,11 +74,11 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
         _device.Connection.GetRtcmV3RawMessages().Where(_=>_rtcmV3Filter.Contains(_.MessageId)).Subscribe(SendRtcm)
             .DisposeItWith(Disposable);
         
-        _state = new RxValue<AsvGbsState>(AsvGbsState.AsvGbsStateLoading).DisposeItWith(Disposable);
+        _mode = new RxValue<AsvGbsCustomMode>(AsvGbsCustomMode.AsvGbsCustomModeLoading).DisposeItWith(Disposable);
         _position = new RxValue<GeoPoint>(GeoPoint.Zero).DisposeItWith(Disposable);
-        
-        _svc.UpdateCustomMode(_=>_.Compatibility |= AsvGbsCompatibility.RtkMode );
-        _svc.Server.Gbs.Init(TimeSpan.FromMilliseconds(_config.GbsStatusRateMs),this );
+
+        _server = new GbsServerDevice(this, svc.Server, disposeServer: false)
+            .DisposeItWith(Disposable);
 
         Observable.Timer(TimeSpan.FromMilliseconds(_config.UpdateStatusFromDeviceRateMs), TimeSpan.FromMilliseconds(_config.UpdateStatusFromDeviceRateMs))
             .Subscribe(UpdateStatus)
@@ -87,6 +89,8 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
     private void SendRtcm(RtcmV3RawMessage msg)
     {
         if (_isInit == false) return;
+        if (_mode.Value != AsvGbsCustomMode.AsvGbsCustomModeAuto && _mode.Value != AsvGbsCustomMode.AsvGbsCustomModeFixed) return;
+        
         if (Interlocked.CompareExchange(ref _sendRtcmFlag, 1, 0) != 0)
         {
             return;
@@ -112,16 +116,16 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
             switch (cfgTMode3.Mode)
             {
                 case TMode3Enum.Disabled:
-                    _state.OnNext(AsvGbsState.AsvGbsStateIdleMode);
+                    _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
                     break;
                 case TMode3Enum.SurveyIn:
-                    _state.OnNext(_svIn.Value.Active
-                        ? AsvGbsState.AsvGbsStateAutoModeInProgress
-                        : AsvGbsState.AsvGbsStateAutoMode);
+                    _mode.OnNext(_svIn.Value.Active
+                        ? AsvGbsCustomMode.AsvGbsCustomModeAutoInProgress
+                        : AsvGbsCustomMode.AsvGbsCustomModeAuto);
                     _position.OnNext(_svIn.Value.Location ?? GeoPoint.Zero);
                     break;
                 case TMode3Enum.FixedMode:
-                    _state.OnNext(AsvGbsState.AsvGbsStateFixedMode);
+                    _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeFixed);
                     _position.OnNext(cfgTMode3.Location ?? GeoPoint.Zero);
                     break;
                 default:
@@ -149,7 +153,7 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
     {
         try
         {
-            _state.OnNext(AsvGbsState.AsvGbsStateLoading);
+            _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeLoading);
             var ver = await _device.GetMonVer();
             _svc.Server.StatusText.Debug($"Found GNSS HW:{ver.Hardware}, SW:{ver.Software}, EXT:{string.Join(",", ver.Extensions)}");
             await _device.SetStationaryMode(false, _config.MessageRateHz);
@@ -181,16 +185,16 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
             
             // mon-hw - 2s
             await _device.SetMessageRate((byte)UbxHelper.ClassIDs.MON, 0x09, 2, default);
-            _state.OnNext(AsvGbsState.AsvGbsStateIdleMode);
+            _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
             _isInit = true;
         }
         catch (Exception e)
         {
             _svc.Server.StatusText.Error("Error to init GNSS");
-            _svc.Server.StatusText.Error(e.Message);
-            _svc.Server.StatusText.Error("Reconnect after 5 sec...");
-            _state.OnNext(AsvGbsState.AsvGbsStateError);
-            Observable.Timer(TimeSpan.FromSeconds(5)).Subscribe(_ => InitUbxDevice(),DisposeCancel);
+            _svc.Server.StatusText.Debug(e.Message);
+            _svc.Server.StatusText.Debug($"Reconnect after {TimeSpan.FromMilliseconds(_config.ReconnectTimeoutMs).TotalSeconds:F0} sec...");
+            _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeError);
+            Observable.Timer(TimeSpan.FromMilliseconds(_config.ReconnectTimeoutMs)).Subscribe(_ => InitUbxDevice(),DisposeCancel);
         }
         
     }
@@ -285,6 +289,8 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IAsvGbsClient
         }
     }
 
-    public IRxValue<AsvGbsState> State => _state;
+    public IRxValue<AsvGbsCustomMode> CustomMode => _mode;
+
     public IRxValue<GeoPoint> Position => _position;
+    
 }

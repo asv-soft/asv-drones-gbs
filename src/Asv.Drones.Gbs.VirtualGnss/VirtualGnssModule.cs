@@ -5,6 +5,7 @@ using Asv.Common;
 using Asv.Drones.Gbs.Core;
 using Asv.Drones.Gbs.Core.Vehicles;
 using Asv.Mavlink;
+using Asv.Mavlink.Server;
 using Asv.Mavlink.V2.AsvGbs;
 using Asv.Mavlink.V2.Common;
 using NLog;
@@ -19,13 +20,14 @@ public class VirtualGnssModuleConfig
 
 [Export(typeof(IModule))]
 [PartCreationPolicy(CreationPolicy.Shared)]
-public class VirtualGnssModule: DisposableOnceWithCancel, IModule,IAsvGbsClient
+public class VirtualGnssModule: DisposableOnceWithCancel, IModule,IGbsClientDevice
 {
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private readonly IGbsMavlinkService _svc;
     private readonly VirtualGnssModuleConfig _config;
-    private readonly RxValue<AsvGbsState> _state;
+    private readonly RxValue<AsvGbsCustomMode> _mode;
     private readonly RxValue<GeoPoint> _position;
+    private readonly GbsServerDevice _server;
 
     [ImportingConstructor]
     public VirtualGnssModule(IGbsMavlinkService svc,IConfiguration configuration)
@@ -33,7 +35,7 @@ public class VirtualGnssModule: DisposableOnceWithCancel, IModule,IAsvGbsClient
         if (configuration == null) throw new ArgumentNullException(nameof(configuration));
         _svc = svc ?? throw new ArgumentNullException(nameof(svc));
         _config = configuration.Get<VirtualGnssModuleConfig>();
-        _state = new RxValue<AsvGbsState>(AsvGbsState.AsvGbsStateLoading).DisposeItWith(Disposable);
+        _mode = new RxValue<AsvGbsCustomMode>(AsvGbsCustomMode.AsvGbsCustomModeLoading).DisposeItWith(Disposable);
         _position = new RxValue<GeoPoint>(GeoPoint.Zero).DisposeItWith(Disposable);
         // if disabled => do nothing
         if (_config.IsEnabled == false)
@@ -41,40 +43,41 @@ public class VirtualGnssModule: DisposableOnceWithCancel, IModule,IAsvGbsClient
             _logger.Warn("Virtual GNSS module is disbaled and will be ignored");
             return;
         }
-        
-        _svc.UpdateCustomMode(_=>_.Compatibility |= AsvGbsCompatibility.RtkMode );
-        _svc.Server.Gbs.Init(TimeSpan.FromMilliseconds(_config.GbsStatusRateMs),this );
-        
+
+        _server = new GbsServerDevice(this, svc.Server, disposeServer: false)
+            .DisposeItWith(Disposable);
+
     }
 
     public void Init()
     {
         if (_config.IsEnabled == false) return;
         Thread.Sleep(10000);
-        _state.OnNext(AsvGbsState.AsvGbsStateIdleMode);
+        _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
     }
 
     public Task<MavResult> StartAutoMode(float duration, float accuracy, CancellationToken cancel)
     {
-        _state.OnNext(AsvGbsState.AsvGbsStateAutoModeInProgress);
-        Observable.Timer(TimeSpan.FromSeconds(10)).Subscribe(_ => _state.OnNext(AsvGbsState.AsvGbsStateAutoMode));
+        _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeAutoInProgress);
+        Observable.Timer(TimeSpan.FromSeconds(10)).Subscribe(_ => _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeAuto));
         return Task.FromResult(MavResult.MavResultAccepted);
     }
 
     public Task<MavResult> StartFixedMode(GeoPoint geoPoint, float accuracy, CancellationToken cancel)
     {
-        _state.OnNext(AsvGbsState.AsvGbsStateFixedModeInProgress);
-        Observable.Timer(TimeSpan.FromSeconds(10)).Subscribe(_ => _state.OnNext(AsvGbsState.AsvGbsStateFixedMode));
+        _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeFixedInProgress);
+        Observable.Timer(TimeSpan.FromSeconds(10)).Subscribe(_ => _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeFixed));
         return Task.FromResult(MavResult.MavResultAccepted);
     }
 
     public Task<MavResult> StartIdleMode(CancellationToken cancel)
     {
-        _state.OnNext(AsvGbsState.AsvGbsStateLoading);
-        Observable.Timer(TimeSpan.FromSeconds(10)).Subscribe(_ => _state.OnNext(AsvGbsState.AsvGbsStateIdleMode));
+        _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeLoading);
+        Observable.Timer(TimeSpan.FromSeconds(10)).Subscribe(_ => _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle));
         return Task.FromResult(MavResult.MavResultAccepted);
     }
 
-    public IRxValue<AsvGbsState> State => _state;
+    public IRxValue<AsvGbsCustomMode> CustomMode => _mode;
     public IRxValue<GeoPoint> Position => _position;
+    
 }

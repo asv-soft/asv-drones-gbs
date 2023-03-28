@@ -9,5 +9,4 @@ public interface IGbsMavlinkService
 {
     IMavlinkServer Server { get; }
     IMavlinkRouter Router { get; }
-    void UpdateCustomMode(Action<AsvCustomMode> changeCallback);
 }

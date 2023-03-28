@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using Asv.Cfg;
 using Asv.Common;
 using Asv.Mavlink;
@@ -62,16 +63,9 @@ public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
     public static Logger Logger = LogManager.GetCurrentClassLogger();
     
     [ImportingConstructor]
-    public GbsMavlinkService(IConfiguration config, IPacketSequenceCalculator sequenceCalculator)
+    public GbsMavlinkService(IConfiguration config, IPacketSequenceCalculator sequenceCalculator,CompositionContainer container)
     {
-        Router = new MavlinkRouter(_ =>
-        {
-            _.RegisterCommonDialect();
-            _.RegisterArdupilotmegaDialect();
-            _.RegisterIcarousDialect();
-            _.RegisterUavionixDialect();
-            _.RegisterAsvGbsDialect();
-        }).DisposeItWith(Disposable);
+        Router = new MavlinkRouter(MavlinkV2ConnectionFactory.RegisterDefaultDialects).DisposeItWith(Disposable);
         var cfg = config.Get<GbsServerServiceConfig>();
         foreach (var port in cfg.Ports)
         {
@@ -85,32 +79,9 @@ public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
                 SystemId = cfg.SystemId,
             }, sequenceCalculator,false)
             .DisposeItWith(Disposable);
-        Server.Heartbeat.Set(_ =>
-        {
-            _.Autopilot = MavAutopilot.MavAutopilotInvalid;
-            _.Type = (Mavlink.V2.Common.MavType)MavType.MavTypeAsvGbs;
-            _.SystemStatus = MavState.MavStateActive;
-            _.BaseMode = MavModeFlag.MavModeFlagCustomModeEnabled;
-            _.MavlinkVersion = 3;
-            var customMode = new AsvCustomMode
-            {
-                Compatibility = AsvGbsCompatibility.Unknown
-            };
-            _.CustomMode = customMode.Value;
-        });
-        Server.Heartbeat.Start();
     }
 
-    public void UpdateCustomMode(Action<AsvCustomMode> changeCallback)
-    {
-        Server.Heartbeat.Set(_ =>
-        {
-            var newMode = new AsvCustomMode(_.CustomMode);
-            changeCallback(newMode);
-            _.CustomMode = newMode.Value;
-        });
-    }
-
+    
     public IMavlinkServer Server { get; }
     public IMavlinkRouter Router { get; }
 }

@@ -39,6 +39,7 @@ public class VehicleServiceConfig
         private readonly List<MavlinkDevice> _info = new();
         private readonly VehicleServiceConfig _config;
         private readonly TimeSpan _linkTimeout;
+        private readonly Subject<byte> _vehicleCountChangedSubject;
 
 
         [ImportingConstructor]
@@ -46,6 +47,7 @@ public class VehicleServiceConfig
         {
             _mavlink = mavlink ?? throw new ArgumentNullException(nameof(mavlink));
             _config = cfgSvc.Get<VehicleServiceConfig>();
+            _vehicleCountChangedSubject = new Subject<byte>();
             _linkTimeout = TimeSpan.FromMilliseconds(_config.DeviceTimeoutMs);
             _sequenceCalculator = sequenceCalculator;
             Disposable.AddAction(() =>
@@ -78,6 +80,7 @@ public class VehicleServiceConfig
                 _deviceListLock.EnterWriteLock();
                 newItem = new MavlinkDevice(packet, _mavlink.Server, _sequenceCalculator);
                 _info.Add(newItem);
+                _vehicleCountChangedSubject.OnNext((byte)_info.Count);
                 _deviceListLock.ExitWriteLock();
                 Logger.Info($"Found new device {JsonConvert.SerializeObject(newItem.GetInfo())}");
             }
@@ -97,6 +100,7 @@ public class VehicleServiceConfig
                 foreach (var device in deviceToRemove)
                 {
                     _info.Remove(device);
+                    _vehicleCountChangedSubject.OnNext((byte)_info.Count);
                     Logger.Info($"Delete device {JsonConvert.SerializeObject(device.GetInfo())}");
                     device?.Dispose();
                 }
@@ -121,6 +125,7 @@ public class VehicleServiceConfig
             base.InternalDisposeOnce();
         }
 
+        public IObservable<byte> OnVehicleCountChanged => _vehicleCountChangedSubject;
         public IObservable<IMavlinkDeviceInfo> OnFoundNewVehicles => _foundDeviceSubject;
         public IObservable<IMavlinkDeviceInfo> OnLostVehicles => _lostDeviceSubject;
 

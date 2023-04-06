@@ -33,22 +33,22 @@ public class UbloxRtkModuleConfig
 
 [Export(typeof(IModule))]
 [PartCreationPolicy(CreationPolicy.Shared)]
-public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
+public class UbloxRtkModule:GbsClientDeviceBase, IModule, IGbsClientDevice
 {
     private readonly IGbsMavlinkService _svc;
     private readonly IVehicleServices _vehicle;
     private readonly UbloxRtkModuleConfig _config;
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private readonly UbxDevice _device;
-    private readonly RxValue<GeoPoint> _position;
     private int _busy;
     private bool _isInit;
     private int _updateStatusInProgress;
     private readonly RxValue<UbxNavSvin> _svIn;
     private readonly HashSet<ushort> _rtcmV3Filter;
     private int _sendRtcmFlag;
-    private readonly RxValue<AsvGbsCustomMode> _mode;
     private readonly GbsServerDevice _server;
+    private readonly IncrementalRateCounter _rxByteRate = new(3);
+    private long _rxBytes;
 
     [ImportingConstructor]
     public UbloxRtkModule(IGbsMavlinkService svc,IConfiguration configuration, IVehicleServices vehicle)
@@ -70,26 +70,25 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
         _svc.Server.StatusText.Info("Connecting to GNSS device...");
         _device = new UbxDevice(_config.ConnectionString).DisposeItWith(Disposable);
         
-        _device.Connection.Filter<UbxNavSvin>().Select(_=> _ as UbxNavSvin).Subscribe(_svIn).DisposeItWith(Disposable);
+        _device.Connection.Filter<UbxNavSvin>().Subscribe(_svIn).DisposeItWith(Disposable);
         _device.Connection.GetRtcmV3RawMessages().Where(_=>_rtcmV3Filter.Contains(_.MessageId)).Subscribe(SendRtcm)
             .DisposeItWith(Disposable);
         
-        _mode = new RxValue<AsvGbsCustomMode>(AsvGbsCustomMode.AsvGbsCustomModeLoading).DisposeItWith(Disposable);
-        _position = new RxValue<GeoPoint>(GeoPoint.Zero).DisposeItWith(Disposable);
-
         _server = new GbsServerDevice(this, svc.Server, disposeServer: false)
             .DisposeItWith(Disposable);
 
         Observable.Timer(TimeSpan.FromMilliseconds(_config.UpdateStatusFromDeviceRateMs), TimeSpan.FromMilliseconds(_config.UpdateStatusFromDeviceRateMs))
             .Subscribe(UpdateStatus)
             .DisposeItWith(Disposable);
-
+        
+        InternalVehicleCount.OnNext((byte)_vehicle.Vehicles.Length);
+        _vehicle.OnVehicleCountChanged.Subscribe(InternalVehicleCount).DisposeItWith(Disposable);
     }
 
     private void SendRtcm(RtcmV3RawMessage msg)
     {
         if (_isInit == false) return;
-        if (_mode.Value != AsvGbsCustomMode.AsvGbsCustomModeAuto && _mode.Value != AsvGbsCustomMode.AsvGbsCustomModeFixed) return;
+        if (InternalCustomMode.Value != AsvGbsCustomMode.AsvGbsCustomModeAuto && InternalCustomMode.Value != AsvGbsCustomMode.AsvGbsCustomModeFixed) return;
         
         if (Interlocked.CompareExchange(ref _sendRtcmFlag, 1, 0) != 0)
         {
@@ -97,6 +96,9 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
         }
         try
         {
+            Interlocked.Add(ref _rxBytes, msg.RawData.Length);
+            var rate = _rxByteRate.Calculate(_rxBytes);
+            InternalDgpsRate.OnNext((ushort)rate);
             _vehicle.SendRtcmData(msg.RawData, msg.RawData.Length, CancellationToken.None).Wait();
         }
         finally
@@ -112,25 +114,75 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
         {
             if (_isInit == false) return;
             
-            var cfgTMode3 = await _device.GetCfgTMode3(CancellationToken.None);
+            var cfgTMode3 = await _device.GetCfgTMode3(DisposeCancel);
             switch (cfgTMode3.Mode)
             {
                 case TMode3Enum.Disabled:
-                    _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
+                    InternalCustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
                     break;
                 case TMode3Enum.SurveyIn:
-                    _mode.OnNext(_svIn.Value.Active
+                    InternalCustomMode.OnNext(_svIn.Value.Active
                         ? AsvGbsCustomMode.AsvGbsCustomModeAutoInProgress
                         : AsvGbsCustomMode.AsvGbsCustomModeAuto);
-                    _position.OnNext(_svIn.Value.Location ?? GeoPoint.Zero);
+
+                    InternalPosition.OnNext(_svIn.Value.Location ?? GeoPoint.Zero);
                     break;
                 case TMode3Enum.FixedMode:
-                    _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeFixed);
-                    _position.OnNext(cfgTMode3.Location ?? GeoPoint.Zero);
+                    InternalCustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeFixed);
+                    InternalPosition.OnNext(cfgTMode3.Location ?? GeoPoint.Zero);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            InternalAccuracyMeter.OnNext(_svIn.Value.Accuracy);
+            InternalObservationSec.OnNext((ushort)_svIn.Value.Observations);
+            
+            var navSat = await _device.GetNavSat(DisposeCancel);
+            InternalAllSatellites.OnNext(navSat.NumSvs);
+            byte gps = 0;
+            byte sbas = 0;
+            byte galileo= 0;
+            byte beidou= 0;
+            byte imes = 0;
+            byte qzss = 0;
+            byte glo= 0;
+            foreach (var satItem in navSat.Items)
+            {
+                switch (satItem.GnssType)
+                {
+                    case UbxNavSatGnssId.GPS:
+                        ++gps;
+                        break;
+                    case UbxNavSatGnssId.SBAS:
+                        ++sbas;
+                        break;
+                    case UbxNavSatGnssId.Galileo:
+                        ++galileo;
+                        break;
+                    case UbxNavSatGnssId.BeiDou:
+                        ++beidou;
+                        break;
+                    case UbxNavSatGnssId.IMES:
+                        ++imes;
+                        break;
+                    case UbxNavSatGnssId.QZSS:
+                        ++qzss;
+                        break;
+                    case UbxNavSatGnssId.GLONASS:
+                        ++glo;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            InternalGpsSatellites.OnNext(gps);
+            InternalSbasSatellites.OnNext(sbas);
+            InternalGalSatellites.OnNext(galileo);
+            InternalBeidouSatellites.OnNext(beidou);
+            InternalImesSatellites.OnNext(imes);
+            InternalQzssSatellites.OnNext(qzss);
+            InternalGlonassSatellites.OnNext(glo);
         }
         finally
         {
@@ -153,7 +205,7 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
     {
         try
         {
-            _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeLoading);
+            InternalCustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeLoading);
             var ver = await _device.GetMonVer();
             _svc.Server.StatusText.Debug($"Found GNSS HW:{ver.Hardware}, SW:{ver.Software}, EXT:{string.Join(",", ver.Extensions)}");
             await _device.SetStationaryMode(false, _config.MessageRateHz);
@@ -165,7 +217,7 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
             // 1005 - 5s
             await _device.SetMessageRate((byte)UbxHelper.ClassIDs.RTCM3, 0x05, 5);
             
-            await _device.SetupRtcmMSM4Rate(_config.MessageRateHz,default);
+            await _device.SetupRtcmMSM4Rate(_config.MessageRateHz,DisposeCancel);
             await _device.SetupRtcmMSM7Rate(0,default);
             
             // 1230 - 5s
@@ -185,7 +237,7 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
             
             // mon-hw - 2s
             await _device.SetMessageRate((byte)UbxHelper.ClassIDs.MON, 0x09, 2, default);
-            _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
+            InternalCustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
             _isInit = true;
         }
         catch (Exception e)
@@ -193,7 +245,7 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
             _svc.Server.StatusText.Error("Error to init GNSS");
             _svc.Server.StatusText.Debug(e.Message);
             _svc.Server.StatusText.Debug($"Reconnect after {TimeSpan.FromMilliseconds(_config.ReconnectTimeoutMs).TotalSeconds:F0} sec...");
-            _mode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeError);
+            InternalCustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeError);
             Observable.Timer(TimeSpan.FromMilliseconds(_config.ReconnectTimeoutMs)).Subscribe(_ => InitUbxDevice(),DisposeCancel);
         }
         
@@ -201,7 +253,7 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
 
     #endregion
 
-    public async Task<MavResult> StartAutoMode(float duration, float accuracy, CancellationToken cancel)
+    public override async Task<MavResult> StartAutoMode(float duration, float accuracy, CancellationToken cancel)
     {
         if (CheckInitAndBeginCall() == false) return MavResult.MavResultTemporarilyRejected;
         try
@@ -251,7 +303,7 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
 
     #endregion
 
-    public async Task<MavResult> StartFixedMode(GeoPoint geoPoint,float accuracy, CancellationToken cancel)
+    public override async Task<MavResult> StartFixedMode(GeoPoint geoPoint,float accuracy, CancellationToken cancel)
     {
         if (CheckInitAndBeginCall() == false) return MavResult.MavResultTemporarilyRejected;
 
@@ -273,7 +325,7 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
         }
     }
 
-    public async Task<MavResult> StartIdleMode(CancellationToken cancel)
+    public override async Task<MavResult> StartIdleMode(CancellationToken cancel)
     {
         if (CheckInitAndBeginCall() == false) return MavResult.MavResultTemporarilyRejected;
         try
@@ -288,9 +340,4 @@ public class UbloxRtkModule:DisposableOnceWithCancel, IModule, IGbsClientDevice
             return MavResult.MavResultFailed;
         }
     }
-
-    public IRxValue<AsvGbsCustomMode> CustomMode => _mode;
-
-    public IRxValue<GeoPoint> Position => _position;
-    
 }

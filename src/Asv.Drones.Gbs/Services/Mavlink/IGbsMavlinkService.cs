@@ -1,12 +1,9 @@
 ﻿using Asv.Mavlink;
-using Asv.Mavlink.Server;
 
-namespace Asv.Drones.Gbs.Core;
-
-
+namespace Asv.Drones.Gbs;
 
 public interface IGbsMavlinkService
 {
-    IMavlinkServer Server { get; }
     IMavlinkRouter Router { get; }
+    IGbsServerDevice Server { get; }
 }

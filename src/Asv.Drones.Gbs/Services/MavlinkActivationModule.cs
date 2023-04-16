@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.Composition;
 using Asv.Common;
-using Asv.Drones.Gbs.Core;
 
-namespace Asv.Drones.Station
+namespace Asv.Drones.Gbs
 {
     
     
 
-    [Export(typeof(IModule))]
-    [PartCreationPolicy(CreationPolicy.Shared)]
+    // [Export(typeof(IModule))]
+    // [PartCreationPolicy(CreationPolicy.Shared)] // [Export(typeof(IModule))]
+    // [PartCreationPolicy(CreationPolicy.Shared)]
     public class MavlinkActivationModule : DisposableOnceWithCancel, IModule
     {
 

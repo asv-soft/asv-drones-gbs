@@ -8,19 +8,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Asv.Cfg" Version="1.5.0" />
-      <PackageReference Include="Asv.Common" Version="1.5.0" />
-      <PackageReference Include="Asv.Mavlink" Version="2.1.1" />
+      <PackageReference Include="Asv.Cfg" Version="1.6.0" />
+      <PackageReference Include="Asv.Common" Version="1.6.0" />
+      <PackageReference Include="Asv.Gnss" Version="1.2.5" />
+      <PackageReference Include="Asv.IO" Version="1.6.0" />
+      <PackageReference Include="Asv.Mavlink" Version="3.0.0" />
       <PackageReference Include="NLog" Version="5.1.2" />
       <PackageReference Include="Spectre.Console" Version="0.46.0" />
       <PackageReference Include="Spectre.Console.Cli" Version="0.46.0" />
       <PackageReference Include="System.ComponentModel.Composition" Version="7.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Asv.Drones.Gbs.Core\Asv.Drones.Gbs.Core.csproj" />
-      <ProjectReference Include="..\Asv.Drones.Gbs.Ublox\Asv.Drones.Gbs.Ublox.csproj" />
-      <ProjectReference Include="..\Asv.Drones.Gbs.VirtualGnss\Asv.Drones.Gbs.VirtualGnss.csproj" />
     </ItemGroup>
 
     <ItemGroup>

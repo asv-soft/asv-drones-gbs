@@ -1,18 +1,12 @@
 ﻿using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Reactive.Concurrency;
 using Asv.Cfg;
 using Asv.Common;
 using Asv.Mavlink;
-using Asv.Mavlink.Server;
-using Asv.Mavlink.V2.Ardupilotmega;
-using Asv.Mavlink.V2.AsvGbs;
-using Asv.Mavlink.V2.Common;
-using Asv.Mavlink.V2.Icarous;
-using Asv.Mavlink.V2.Uavionix;
 using NLog;
-using MavType = Asv.Mavlink.V2.AsvGbs.MavType;
 
-namespace Asv.Drones.Gbs.Core;
+namespace Asv.Drones.Gbs;
 
 public class GbsServerServiceConfig
 {
@@ -54,18 +48,20 @@ public class GbsServerServiceConfig
 
     public byte ComponentId { get; set; } = 13;
     public byte SystemId { get; set; } = 13;
+    public int DgpsDeviceTimeoutMs { get; set; } = 30000;
+    public GbsServerDeviceConfig Server { get; set; } = new();
 }
 
 [Export(typeof(IGbsMavlinkService))]
 [PartCreationPolicy(CreationPolicy.Shared)]
 public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
 {
-    public static Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     
     [ImportingConstructor]
     public GbsMavlinkService(IConfiguration config, IPacketSequenceCalculator sequenceCalculator,CompositionContainer container)
     {
-        Router = new MavlinkRouter(MavlinkV2ConnectionFactory.RegisterDefaultDialects).DisposeItWith(Disposable);
+        Router = new MavlinkRouter(MavlinkV2Connection.RegisterDefaultDialects).DisposeItWith(Disposable);
         var cfg = config.Get<GbsServerServiceConfig>();
         foreach (var port in cfg.Ports)
         {
@@ -73,15 +69,15 @@ public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
             Router.AddPort(port);
         }
         Logger.Trace($"Create device SYS:{cfg.SystemId}, COM:{cfg.ComponentId}");    
-        Server = new MavlinkServerBase(Router, new MavlinkServerIdentity
+        Server = new GbsServerDevice(Router, new MavlinkServerIdentity
             {
                 ComponentId = cfg.ComponentId,
                 SystemId = cfg.SystemId,
-            }, sequenceCalculator,false)
+            }, sequenceCalculator,Scheduler.Default, cfg.Server)
             .DisposeItWith(Disposable);
+        Server.Start();
     }
 
-    
-    public IMavlinkServer Server { get; }
     public IMavlinkRouter Router { get; }
+    public IGbsServerDevice Server { get; }
 }

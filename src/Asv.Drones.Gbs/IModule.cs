@@ -1,4 +1,4 @@
-﻿namespace Asv.Drones.Gbs.Core;
+﻿namespace Asv.Drones.Gbs;
 
 public interface IModule:IDisposable
 {

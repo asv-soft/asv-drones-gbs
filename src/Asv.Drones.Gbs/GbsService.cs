@@ -4,9 +4,6 @@ using System.ComponentModel.Composition.Primitives;
 using System.Reflection;
 using Asv.Cfg;
 using Asv.Common;
-using Asv.Drones.Gbs.Core;
-using Asv.Drones.Gbs.Ublox;
-using Asv.Drones.Gbs.VirtualGnss;
 using Asv.Mavlink;
 using NLog;
 
@@ -21,9 +18,10 @@ internal class GbsService : DisposableOnceWithCancel
 
     public GbsService(IConfiguration config)
     {
+        var a = AppDomain.CurrentDomain.GetAssemblies().ToArray();
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _container = new CompositionContainer(new AggregateCatalog(
-            RegisterAssembly.Distinct().Select(_ => new AssemblyCatalog(_)).OfType<ComposablePartCatalog>()))
+                AppDomain.CurrentDomain.GetAssemblies().Distinct().Select(_ => new AssemblyCatalog(_)).OfType<ComposablePartCatalog>()))
             .DisposeItWith(Disposable);
         var batch = new CompositionBatch();
         batch.AddExportedValue<IConfiguration>(_config);
@@ -53,10 +51,7 @@ internal class GbsService : DisposableOnceWithCancel
     {
         get
         {
-            yield return typeof(GbsService).Assembly;           // [this]
-            yield return typeof(IModule).Assembly;              // Core
-            yield return typeof(UbloxRtkModule).Assembly;       // Ublox
-            yield return typeof(VirtualGnssModule).Assembly;    // VirualGnss
+            yield return this.GetType().Assembly;           // [this]
         }
     }
 }

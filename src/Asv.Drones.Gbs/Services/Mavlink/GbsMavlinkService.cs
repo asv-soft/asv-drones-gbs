@@ -48,7 +48,6 @@ public class GbsServerServiceConfig
 
     public byte ComponentId { get; set; } = 13;
     public byte SystemId { get; set; } = 13;
-    public int DgpsDeviceTimeoutMs { get; set; } = 30000;
     public GbsServerDeviceConfig Server { get; set; } = new();
 }
 

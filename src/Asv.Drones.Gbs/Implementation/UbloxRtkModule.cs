@@ -251,8 +251,20 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         if (CheckInitAndBeginCall() == false) return MavResult.MavResultTemporarilyRejected;
         try
         {
+            var mode = await _device.GetCfgTMode3(cancel);
+            if (mode.Mode == TMode3Enum.SurveyIn)
+            {
+                await _device.Push(new UbxCfgTMode3 { Mode = TMode3Enum.Disabled, IsGivenInLLA = false }, cancel)
+                    .ConfigureAwait(false);
+            }
             _svc.Server.StatusText.Info($"Set GNSS AUTO mode (dur:{duration:F0},acc:{accuracy:F0})");
             await _device.SetSurveyInMode((uint)duration, accuracy, cancel);
+
+            if (mode.Mode == TMode3Enum.FixedMode)
+            {
+                await _device.RebootReceiver(cancel).ConfigureAwait(false);
+            }
+            
             return MavResult.MavResultAccepted;
         }
         catch (Exception e)
@@ -303,7 +315,7 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         try
         {
             _svc.Server.StatusText.Info($"Set GNSS FIXED mode ({geoPoint})");
-            await _device.SetFixedBaseMode(geoPoint,accuracy,cancel);
+            await _device.SetFixedBaseMode(geoPoint,accuracy,cancel).ConfigureAwait(false);
             return MavResult.MavResultAccepted;
         }
         catch (Exception e)
@@ -323,7 +335,9 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         if (CheckInitAndBeginCall() == false) return MavResult.MavResultTemporarilyRejected;
         try
         {
-            await _device.RebootReceiver(cancel);
+            await _device.Push(new UbxCfgTMode3 { Mode = TMode3Enum.Disabled, IsGivenInLLA = false }, cancel)
+                .ConfigureAwait(false);
+            await _device.RebootReceiver(cancel).ConfigureAwait(false);
             return MavResult.MavResultAccepted;
         }
         catch (Exception e)
@@ -331,6 +345,10 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
             _svc.Server.StatusText.Error("GNSS IDLE mode error");
             _svc.Server.StatusText.Error(e.Message);
             return MavResult.MavResultFailed;
+        }
+        finally
+        {
+            EndCall();
         }
     }
 }

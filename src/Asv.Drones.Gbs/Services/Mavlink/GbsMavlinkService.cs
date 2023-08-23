@@ -82,7 +82,7 @@ public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
         Observable.Timer(TimeSpan.FromSeconds(5)).Subscribe(_ =>
         {
             var version = Assembly.GetExecutingAssembly().GetVersion().ToString();
-            Server.StatusText.Log(MavSeverity.MavSeverityInfo, version);
+            Server.StatusText.Log(MavSeverity.MavSeverityInfo, $"GBS version: {version}");
         });
     }
 

@@ -2,6 +2,7 @@
 using System.ComponentModel.Composition.Hosting;
 using System.Reactive.Concurrency;
 using Asv.Cfg;
+using Asv.Cfg.ImMemory;
 using Asv.Common;
 using Asv.Mavlink;
 using NLog;
@@ -67,12 +68,13 @@ public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
             Logger.Trace($"Add port {port.Name}: {port.ConnectionString}");
             Router.AddPort(port);
         }
-        Logger.Trace($"Create device SYS:{cfg.SystemId}, COM:{cfg.ComponentId}");    
+        Logger.Trace($"Create device SYS:{cfg.SystemId}, COM:{cfg.ComponentId}");
         Server = new GbsServerDevice(Router, new MavlinkServerIdentity
             {
                 ComponentId = cfg.ComponentId,
                 SystemId = cfg.SystemId,
-            }, sequenceCalculator,Scheduler.Default, cfg.Server)
+            }, sequenceCalculator, Scheduler.Default, cfg.Server, Array.Empty<IMavParamTypeMetadata>(),
+            new MavParamByteWiseEncoding(), new InMemoryConfiguration())
             .DisposeItWith(Disposable);
         Server.Start();
     }

@@ -46,6 +46,7 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
     private int _sendRtcmFlag;
     private readonly IncrementalRateCounter _rxByteRate = new(3);
     private long _rxBytes;
+    private bool _areRtcmSending;
 
     [ImportingConstructor]
     public UbloxRtkModule(IGbsMavlinkService svc,IConfiguration configuration)
@@ -100,6 +101,20 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         }
     }
 
+    private async Task RtcmMSM4On(CancellationToken cancel)
+    {
+        if (_areRtcmSending) return;
+        await _device.SetupRtcmMSM4Rate(_config.MessageRateHz, cancel).ConfigureAwait(false);
+        _areRtcmSending = true;
+    }
+    
+    private async Task RtcmMSMOff(CancellationToken cancel)
+    {
+        if (!_areRtcmSending) return;
+        await _device.SetupRtcmMSM4Rate(0, cancel).ConfigureAwait(false);
+        _areRtcmSending = false;
+    }
+
     private async void UpdateStatus(long l)
     {
         if (Interlocked.CompareExchange(ref _updateStatusInProgress,1,0) !=0) return;
@@ -112,17 +127,27 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
             {
                 case TMode3Enum.Disabled:
                     _svc.Server.Gbs.CustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
+                    await RtcmMSMOff(DisposeCancel).ConfigureAwait(false);
                     break;
                 case TMode3Enum.SurveyIn:
-                    _svc.Server.Gbs.CustomMode.OnNext(_svIn.Value.Active
+                    var state = _svIn.Value.Active
                         ? AsvGbsCustomMode.AsvGbsCustomModeAutoInProgress
-                        : AsvGbsCustomMode.AsvGbsCustomModeAuto);
-
+                        : AsvGbsCustomMode.AsvGbsCustomModeAuto;
+                    _svc.Server.Gbs.CustomMode.OnNext(state);
                     _svc.Server.Gbs.Position.OnNext(_svIn.Value.Location ?? GeoPoint.Zero);
+                    if (state == AsvGbsCustomMode.AsvGbsCustomModeAuto)
+                    {
+                        await RtcmMSM4On(DisposeCancel).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await RtcmMSMOff(DisposeCancel).ConfigureAwait(false);
+                    }
                     break;
                 case TMode3Enum.FixedMode:
                     _svc.Server.Gbs.CustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeFixed);
                     _svc.Server.Gbs.Position.OnNext(cfgTMode3.Location ?? GeoPoint.Zero);
+                    await RtcmMSM4On(DisposeCancel).ConfigureAwait(false);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -211,7 +236,7 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
             await _device.SetMessageRate((byte)UbxHelper.ClassIDs.RTCM3, 0x05, 5);
             
             await _device.SetupRtcmMSM4Rate(_config.MessageRateHz,DisposeCancel);
-            await _device.SetupRtcmMSM7Rate(0,default);
+            _areRtcmSending = true;
             
             // 1230 - 5s
             await _device.SetMessageRate((byte)UbxHelper.ClassIDs.RTCM3, 0xE6, 5);

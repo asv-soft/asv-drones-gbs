@@ -1,10 +1,13 @@
 ﻿using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Reflection;
 using Asv.Cfg;
 using Asv.Cfg.ImMemory;
 using Asv.Common;
 using Asv.Mavlink;
+using Asv.Mavlink.V2.Common;
 using NLog;
 
 namespace Asv.Drones.Gbs;
@@ -77,6 +80,12 @@ public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
             new MavParamByteWiseEncoding(), new InMemoryConfiguration())
             .DisposeItWith(Disposable);
         Server.Start();
+
+        Observable.Timer(TimeSpan.FromSeconds(5)).Subscribe(_ =>
+        {
+            var version = Assembly.GetExecutingAssembly().GetVersion().ToString();
+            Server.StatusText.Log(MavSeverity.MavSeverityInfo, $"GBS version: {version}");
+        });
     }
 
     public IMavlinkRouter Router { get; }

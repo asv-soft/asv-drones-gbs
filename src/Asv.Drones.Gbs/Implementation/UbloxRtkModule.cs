@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.Composition;
+using System.IO.Ports;
 using System.Reactive.Linq;
 using Asv.Cfg;
 using Asv.Common;
 using Asv.Gnss;
+using Asv.IO;
 using Asv.Mavlink;
 using Asv.Mavlink.V2.AsvGbs;
 using Asv.Mavlink.V2.Common;
@@ -38,7 +40,7 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
     private readonly IGbsMavlinkService _svc;
     private readonly UbloxRtkModuleConfig _config;
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-    private readonly UbxDevice _device;
+    private UbxDevice? _device;
     private int _busy;
     private bool _isInit;
     private int _updateStatusInProgress;
@@ -65,17 +67,9 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         _svc.Server.Gbs.StartFixedMode = StartFixedMode;
         _svc.Server.Gbs.StartIdleMode = StartIdleMode;
         
-        var rtcmV3Filter = new HashSet<ushort>(_config.RtcmV3MessagesIdsToSend);
         _svIn = new RxValue<UbxNavSvin>().DisposeItWith(Disposable);
-        // start to init device
-        _svc.Server.StatusText.Info("Connecting to GNSS device...");
-        _device = new UbxDevice(_config.ConnectionString).DisposeItWith(Disposable);
         
-        _device.Connection.Filter<UbxNavSvin>().Subscribe(_svIn).DisposeItWith(Disposable);
-        _device.Connection.GetRtcmV3RawMessages().Where(_=>rtcmV3Filter.Contains(_.MessageId)).Subscribe(SendRtcm)
-            .DisposeItWith(Disposable);
-        
-       Observable.Timer(TimeSpan.FromMilliseconds(_config.UpdateStatusFromDeviceRateMs), TimeSpan.FromMilliseconds(_config.UpdateStatusFromDeviceRateMs))
+        Observable.Timer(TimeSpan.FromMilliseconds(_config.UpdateStatusFromDeviceRateMs), TimeSpan.FromMilliseconds(_config.UpdateStatusFromDeviceRateMs))
             .Subscribe(UpdateStatus)
             .DisposeItWith(Disposable);
     }
@@ -121,7 +115,7 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         try
         {
             if (_isInit == false) return;
-            
+
             var cfgTMode3 = await _device.GetCfgTMode3(DisposeCancel);
             switch (cfgTMode3.Mode)
             {
@@ -143,6 +137,7 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
                     {
                         await RtcmMSMOff(DisposeCancel).ConfigureAwait(false);
                     }
+
                     break;
                 case TMode3Enum.FixedMode:
                     _svc.Server.Gbs.CustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeFixed);
@@ -155,16 +150,16 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
 
             _svc.Server.Gbs.AccuracyMeter.OnNext(_svIn.Value.Accuracy);
             _svc.Server.Gbs.ObservationSec.OnNext((ushort)_svIn.Value.Observations);
-            
+
             var navSat = await _device.GetNavSat(DisposeCancel);
             _svc.Server.Gbs.AllSatellites.OnNext(navSat.NumSvs);
             byte gps = 0;
             byte sbas = 0;
-            byte galileo= 0;
-            byte beidou= 0;
+            byte galileo = 0;
+            byte beidou = 0;
             byte imes = 0;
             byte qzss = 0;
-            byte glo= 0;
+            byte glo = 0;
             foreach (var satItem in navSat.Items)
             {
                 switch (satItem.GnssType)
@@ -194,6 +189,7 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
                         throw new ArgumentOutOfRangeException();
                 }
             }
+
             _svc.Server.Gbs.GpsSatellites.OnNext(gps);
             _svc.Server.Gbs.SbasSatellites.OnNext(sbas);
             _svc.Server.Gbs.GalSatellites.OnNext(galileo);
@@ -201,6 +197,10 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
             _svc.Server.Gbs.ImesSatellites.OnNext(imes);
             _svc.Server.Gbs.QzssSatellites.OnNext(qzss);
             _svc.Server.Gbs.GlonassSatellites.OnNext(glo);
+        }
+        catch (Exception)
+        {
+            // ignored
         }
         finally
         {
@@ -219,13 +219,97 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         Observable.Timer(TimeSpan.FromMilliseconds(1000)).Subscribe(_ => InitUbxDevice(),DisposeCancel);
     }
 
+
+    private IGnssConnection GetDefaultUbxConnection(IPort? port)
+    {
+        return new GnssConnection(port, new Nmea0183Parser().RegisterDefaultMessages(),
+            new RtcmV3Parser().RegisterDefaultMessages(), new UbxBinaryParser().RegisterDefaultMessages());
+    }
+    private async Task<UbxDevice> ConfigureBaudRateAndCreateDevice(SerialPortConfig currentConfig)
+    {
+        var availableBr = new[] { currentConfig.BoundRate, 9600, 38400, 57600, 115200, 230400, 460800 }.Distinct().ToArray();
+        var requiredBoundRate = currentConfig.BoundRate;
+        Exception? lastEx = null;
+        foreach (var br in availableBr)
+        {
+            UbxDevice? device = null;
+            CustomSerialPort? port = null;
+            try
+            {
+                currentConfig.BoundRate = br;
+                port = new CustomSerialPort(currentConfig);
+                port.Enable();
+                device = new UbxDevice(GetDefaultUbxConnection(port), UbxDeviceConfig.Default).DisposeItWith(Disposable);
+                var cfgPort = (UbxCfgPrtConfigUart)(await device.GetCfgPort(1, DisposeCancel).ConfigureAwait(false)).Config;
+                _svc.Server.StatusText.Info($"GNSS device BoundRate: {cfgPort.BoundRate}");
+                if (cfgPort.BoundRate == requiredBoundRate) return device;
+                
+                _svc.Server.StatusText.Info($"Change BoundRate {cfgPort.BoundRate} => {requiredBoundRate}");
+                await device
+                    .SetCfgPort(
+                        new UbxCfgPrt
+                        {
+                            Config = new UbxCfgPrtConfigUart { PortId = 1, BoundRate = requiredBoundRate }
+                        }, DisposeCancel).ConfigureAwait(false);
+                device.Dispose();
+                port.Disable();
+                port.Dispose();
+                currentConfig.BoundRate = requiredBoundRate;
+                port = new CustomSerialPort(currentConfig);
+                port.Enable();
+                device = new UbxDevice(GetDefaultUbxConnection(port), UbxDeviceConfig.Default)
+                    .DisposeItWith(Disposable);
+                
+                cfgPort = (UbxCfgPrtConfigUart)(await device.GetCfgPort(1, DisposeCancel).ConfigureAwait(false)).Config;
+                _svc.Server.StatusText.Info($"GNSS device BoundRate: {cfgPort.BoundRate}");
+                if (cfgPort.BoundRate == requiredBoundRate) return device;
+            }
+            catch (Exception e)
+            {
+                device?.Dispose();
+                port?.Disable();
+                port?.Dispose();
+                lastEx = e;
+            }
+        }
+
+        throw lastEx!;
+    }
     private async void InitUbxDevice()
     {
         try
         {
+            if (_device == null)
+            {
+                // start to init device
+                _svc.Server.StatusText.Info("Connecting to GNSS device...");
+                var port = PortFactory.Create(_config.ConnectionString, true);
+                if (port.PortType == PortType.Serial)
+                {
+                    port.Disable();
+                    port.Dispose();
+                    var uri = new Uri(_config.ConnectionString);
+                    SerialPortConfig.TryParseFromUri(uri, out var portConf);
+                    _device = await ConfigureBaudRateAndCreateDevice(portConf).ConfigureAwait(false);
+                }
+                else
+                {
+                    _device =
+                        new UbxDevice(GetDefaultUbxConnection(port), UbxDeviceConfig.Default)
+                            .DisposeItWith(Disposable);
+                }
+                var rtcmV3Filter = new HashSet<ushort>(_config.RtcmV3MessagesIdsToSend);
+                _device?.Connection.Filter<UbxNavSvin>().Subscribe(_svIn).DisposeItWith(Disposable);
+                _device?.Connection.GetRtcmV3RawMessages().Where(_=>rtcmV3Filter.Contains(_.MessageId)).Subscribe(SendRtcm)
+                    .DisposeItWith(Disposable);
+            }
+            
             _svc.Server.Gbs.CustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeLoading);
             var ver = await _device.GetMonVer();
-            _svc.Server.StatusText.Debug($"Found GNSS HW:{ver.Hardware}, SW:{ver.Software}, EXT:{string.Join(",", ver.Extensions)}");
+            _svc.Server.StatusText.Debug($"Found GNSS HW:{ver.Hardware.Trim('\0')}");
+            _svc.Server.StatusText.Debug($"GNSS SW:{ver.Software.Trim('\0')}");
+            var ext = ver.Extensions.Select(_ => _.Trim('\0')).Distinct().ToArray();
+            _svc.Server.StatusText.Debug($"GNSS EXT:{string.Join(",", ext)}");
             await _device.SetStationaryMode(false, _config.MessageRateHz);
             await _device.TurnOffNmea(CancellationToken.None);
             // surveyin msg - for feedback
@@ -256,17 +340,17 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
             // mon-hw - 2s
             await _device.SetMessageRate((byte)UbxHelper.ClassIDs.MON, 0x09, 2, default);
             _svc.Server.Gbs.CustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
+            
             _isInit = true;
         }
         catch (Exception e)
         {
             _svc.Server.StatusText.Error("Error to init GNSS");
-            _svc.Server.StatusText.Debug(e.Message);
+            // _svc.Server.StatusText.Debug(e.Message);
             _svc.Server.StatusText.Debug($"Reconnect after {TimeSpan.FromMilliseconds(_config.ReconnectTimeoutMs).TotalSeconds:F0} sec...");
             _svc.Server.Gbs.CustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeError);
             Observable.Timer(TimeSpan.FromMilliseconds(_config.ReconnectTimeoutMs)).Subscribe(_ => InitUbxDevice(),DisposeCancel);
         }
-        
     }
 
     #endregion

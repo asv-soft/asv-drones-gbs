@@ -4,7 +4,6 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reflection;
 using Asv.Cfg;
-using Asv.Cfg.ImMemory;
 using Asv.Common;
 using Asv.Mavlink;
 using Asv.Mavlink.V2.Common;

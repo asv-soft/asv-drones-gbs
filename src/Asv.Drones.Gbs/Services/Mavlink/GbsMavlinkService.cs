@@ -61,7 +61,7 @@ public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     
     [ImportingConstructor]
-    public GbsMavlinkService(IConfiguration config, IPacketSequenceCalculator sequenceCalculator,CompositionContainer container)
+    public GbsMavlinkService(IConfiguration config, IPacketSequenceCalculator sequenceCalculator,CompositionContainer container, [ImportMany]IEnumerable<IMavParamTypeMetadata> param)
     {
         Router = new MavlinkRouter(MavlinkV2Connection.RegisterDefaultDialects).DisposeItWith(Disposable);
         var cfg = config.Get<GbsServerServiceConfig>();
@@ -75,7 +75,7 @@ public class GbsMavlinkService : DisposableOnceWithCancel, IGbsMavlinkService
             {
                 ComponentId = cfg.ComponentId,
                 SystemId = cfg.SystemId,
-            }, sequenceCalculator, Scheduler.Default, cfg.Server, Array.Empty<IMavParamTypeMetadata>(),
+            }, sequenceCalculator, Scheduler.Default, cfg.Server, param,
             new MavParamByteWiseEncoding(), new InMemoryConfiguration())
             .DisposeItWith(Disposable);
         Server.Start();

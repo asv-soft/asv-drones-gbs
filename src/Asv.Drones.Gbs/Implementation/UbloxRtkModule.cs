@@ -12,44 +12,163 @@ using NLog;
 
 namespace Asv.Drones.Gbs;
 
+/// <summary>
+/// Represents the configuration settings for the UbloxRtkModule.
+/// </summary>
 public class UbloxRtkModuleConfig
 {
 #if DEBUG
+    /// <summary>
+    /// Gets or sets the value indicating whether the property is enabled.
+    /// </summary>
+    /// <value>
+    /// <c>true</c> if the property is enabled; otherwise, <c>false</c>.
+    /// </value>
+    /// <remarks>
+    /// This property is used to determine if a certain functionality or feature is enabled or disabled.
+    /// The default value is <c>false</c>.
+    /// </remarks>
     public bool IsEnabled { get; set; } = false;
 #else
     public bool IsEnabled { get; set; } = true;
 #endif
+    /// <summary>
+    /// Gets or sets the connection string for the serial port.
+    /// </summary>
+    /// <value>
+    /// The connection string in the format: "serial:/dev/ttyACM0?br=115200".
+    /// </value>
     public string ConnectionString { get; set; } = "serial:/dev/ttyACM0?br=115200";
+
+    /// <summary>
+    /// Gets or sets the rate at which the GBS status is updated in milliseconds.
+    /// </summary>
+    /// <value>
+    /// The rate at which the GBS status is updated in milliseconds. The default value is 1000 milliseconds.
+    /// </value>
     public int GbsStatusRateMs { get; set; } = 1000;
+
+    /// <summary>
+    /// Gets or sets the rate at which the status is updated from the device, in milliseconds.
+    /// </summary>
+    /// <value>
+    /// The rate at which the status is updated from the device, in milliseconds.
+    /// </value>
     public int UpdateStatusFromDeviceRateMs { get; set; } = 1000;
 
+    /// <summary>
+    /// Gets or sets the array of RTCMv3 message IDs to send.
+    /// </summary>
+    /// <remarks>
+    /// The message IDs indicate the specific RTCMv3 messages that
+    /// should be sent by the software. The array contains ushort values
+    /// representing the message IDs.
+    /// </remarks>
+    /// <value>
+    /// An array of ushort values representing RTCMv3 message IDs.
+    /// </value>
     public ushort[] RtcmV3MessagesIdsToSend { get; set; } = {
         1005 , 1006 , 1074 , 1077 ,
         1084 , 1087 , 1094 , 1097 ,
         1124 , 1127 , 1230 , 4072
     };
 
+    /// <summary>
+    /// Gets or sets the rate at which messages are processed in hertz (Hz).
+    /// </summary>
+    /// <remarks>
+    /// The MessageRateHz property determines how often messages are processed.
+    /// It represents the number of messages that can be processed in one second.
+    /// By default, the value is set to 1 Hz.
+    /// </remarks>
+    /// <value>
+    /// The rate at which messages are processed in hertz.
+    /// </value>
     public byte MessageRateHz { get; set; } = 1;
+
+    /// <summary>
+    /// Gets or sets the timeout value in milliseconds for reconnecting.
+    /// </summary>
+    /// <value>
+    /// The timeout value in milliseconds for reconnecting. The default value is 10,000 milliseconds.
+    /// </value>
     public int ReconnectTimeoutMs { get; set; } = 10_000;
 }
 
+/// <summary>
+/// Represents the UBlox RTK module.
+/// </summary>
 [Export(typeof(IModule))]
 [PartCreationPolicy(CreationPolicy.Shared)]
 public class UbloxRtkModule: DisposableOnceWithCancel, IModule
 {
+    /// <summary>
+    /// Represents an instance of the IGbsMavlinkService interface.
+    /// </summary>
     private readonly IGbsMavlinkService _svc;
+
+    /// <summary>
+    /// Represents the configuration of the UbloxRtkModule.
+    /// </summary>
     private readonly UbloxRtkModuleConfig _config;
+
+    /// <summary>
+    /// Logger instance for logging events and messages.
+    /// </summary>
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+    /// <summary>
+    /// Represents a UbxDevice object.
+    /// </summary>
     private UbxDevice? _device;
+
+    /// <summary>
+    /// Represents the current busy status.
+    /// </summary>
     private int _busy;
+
+    /// <summary>
+    /// This private variable indicates whether the initialization process has been completed.
+    /// </summary>
     private bool _isInit;
+
+    /// <summary>
+    /// Represents the status of a ongoing update operation.
+    /// </summary>
+    /// <remarks>
+    /// This variable is used to keep track of the progress of an update operation.
+    /// It stores an integer value that represents the current status of the ongoing update.
+    /// </remarks>
     private int _updateStatusInProgress;
+
+    /// <summary>
+    /// Represents a read-only Reactive Variable storing UbxNavSvin data.
+    /// </summary>
     private readonly RxValue<UbxNavSvin> _svIn;
+
+    /// <summary>
+    /// Private variable representing the flag indicating whether to send RTCM data.
+    /// </summary>
     private int _sendRtcmFlag;
+
+    /// <summary>
+    /// Represents the rate at which bytes are received.
+    /// </summary>
     private readonly IncrementalRateCounter _rxByteRate = new(3);
+
+    /// <summary>
+    /// Represents the number of received bytes.
+    /// </summary>
     private long _rxBytes;
+
+    /// <summary>
+    /// Indicates whether the system is currently sending RTCM data.
+    /// </summary>
     private bool _areRtcmSending;
 
+    /// <summary>
+    /// Represents a UbloxRtkModule that handles communication with a Ublox RTK module.
+    /// </summary>
     [ImportingConstructor]
     public UbloxRtkModule(IGbsMavlinkService svc,IConfiguration configuration)
     {
@@ -74,6 +193,10 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
             .DisposeItWith(Disposable);
     }
 
+    /// <summary>
+    /// Sends a raw RTCMv3 message.
+    /// </summary>
+    /// <param name="msg">The RTCMv3 raw message to be sent.</param>
     private void SendRtcm(RtcmV3RawMessage msg)
     {
         if (_isInit == false) return;
@@ -95,13 +218,23 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         }
     }
 
+    /// <summary>
+    /// Handles the process of sending RTCM MSM4 messages asynchronously.
+    /// </summary>
+    /// <param name="cancel">Cancellation token to allow for cancellation of the operation.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
     private async Task RtcmMSM4On(CancellationToken cancel)
     {
         if (_areRtcmSending) return;
         await _device.SetupRtcmMSM4Rate(_config.MessageRateHz, cancel).ConfigureAwait(false);
         _areRtcmSending = true;
     }
-    
+
+    /// <summary>
+    /// Turns off the Real-Time Kinematic (RTK) Compact Measurement Message (CMM) Stream.
+    /// </summary>
+    /// <param name="cancel">The cancellation token to cancel the async operation.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
     private async Task RtcmMSMOff(CancellationToken cancel)
     {
         if (!_areRtcmSending) return;
@@ -109,6 +242,10 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         _areRtcmSending = false;
     }
 
+    /// <summary>
+    /// Updates the status asynchronously.
+    /// </summary>
+    /// <param name="l">The long value.</param>
     private async void UpdateStatus(long l)
     {
         if (Interlocked.CompareExchange(ref _updateStatusInProgress,1,0) !=0) return;
@@ -212,6 +349,9 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
 
     #region Init
 
+    /// <summary>
+    /// Initializes the method.
+    /// </summary>
     public void Init()
     {
         // if disabled => do nothing
@@ -220,11 +360,22 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
     }
 
 
+    /// <summary>
+    /// Returns a default instance of <see cref="IGnssConnection"/> using the specified <paramref name="port"/>.
+    /// </summary>
+    /// <param name="port">The optional port to use for the connection.</param>
+    /// <returns>A default instance of <see cref="IGnssConnection"/>.</returns>
     private IGnssConnection GetDefaultUbxConnection(IPort? port)
     {
         return new GnssConnection(port, new Nmea0183Parser().RegisterDefaultMessages(),
             new RtcmV3Parser().RegisterDefaultMessages(), new UbxBinaryParser().RegisterDefaultMessages());
     }
+
+    /// <summary>
+    /// Configures the baud rate and creates a UbxDevice.
+    /// </summary>
+    /// <param name="currentConfig">The current serial port configuration.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the UbxDevice.</returns>
     private async Task<UbxDevice> ConfigureBaudRateAndCreateDevice(SerialPortConfig currentConfig)
     {
         var availableBr = new[] { currentConfig.BoundRate, 9600, 38400, 57600, 115200, 230400, 460800 }.Distinct().ToArray();
@@ -275,6 +426,10 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
 
         throw lastEx!;
     }
+
+    /// <summary>
+    /// Initializes the UBX GNSS device.
+    /// </summary>
     private async void InitUbxDevice()
     {
         try
@@ -355,6 +510,13 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
 
     #endregion
 
+    /// <summary>
+    /// Start the GNSS AUTO mode with the given duration and accuracy.
+    /// </summary>
+    /// <param name="duration">The duration in seconds for which the GNSS AUTO mode should be active.</param>
+    /// <param name="accuracy">The desired accuracy for the GNSS AUTO mode.</param>
+    /// <param name="cancel">A cancellation token to cancel the operation if needed.</param>
+    /// <returns>A task that represents the asynchronous operation. It returns MavResult.MavResultAccepted if the GNSS AUTO mode is started successfully, MavResult.MavResultTemporarilyRejected if the initialization and begin call check fails, or MavResult.MavResultFailed if there is an error during the operation.</returns>
     public async Task<MavResult> StartAutoMode(float duration, float accuracy, CancellationToken cancel)
     {
         if (CheckInitAndBeginCall() == false) return MavResult.MavResultTemporarilyRejected;
@@ -392,11 +554,19 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
 
     #region Checks
 
+    /// <summary>
+    /// Ends the call and updates the '_busy' flag to indicate that the call has ended.
+    /// </summary>
     private void EndCall()
     {
         Interlocked.Exchange(ref _busy, 0);
     }
 
+    /// <summary>
+    /// Checks if the initialization is complete and begins the method call.
+    /// </summary>
+    /// <returns>Returns true if the initialization is complete and the method call can proceed.
+    /// Returns false if the initialization is not complete or if there is an ongoing method call.</returns>
     private bool CheckInitAndBeginCall()
     {
         // this is for reject duplicate requests
@@ -417,6 +587,13 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
 
     #endregion
 
+    /// <summary>
+    /// Start Fixed mode with specified GeoPoint and accuracy
+    /// </summary>
+    /// <param name="geoPoint">The GeoPoint to set</param>
+    /// <param name="accuracy">The accuracy value</param>
+    /// <param name="cancel">The CancellationToken for cancellation</param>
+    /// <returns>The Task that represents the asynchronous operation with MavResult value</returns>
     public async Task<MavResult> StartFixedMode(GeoPoint geoPoint,float accuracy, CancellationToken cancel)
     {
         if (CheckInitAndBeginCall() == false) return MavResult.MavResultTemporarilyRejected;
@@ -439,6 +616,11 @@ public class UbloxRtkModule: DisposableOnceWithCancel, IModule
         }
     }
 
+    /// <summary>
+    /// Starts the idle mode of the receiver.
+    /// </summary>
+    /// <param name="cancel">The cancellation token to cancel the operation.</param>
+    /// <returns>The result of the operation.</returns>
     public async Task<MavResult> StartIdleMode(CancellationToken cancel)
     {
         if (CheckInitAndBeginCall() == false) return MavResult.MavResultTemporarilyRejected;

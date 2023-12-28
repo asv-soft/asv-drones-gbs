@@ -9,26 +9,71 @@ using NLog;
 
 namespace Asv.Drones.Gbs;
 
+/// <summary>
+/// Represents the configuration settings for a virtual GNSS module.
+/// </summary>
 public class VirtualGnssModuleConfig
 {
 #if DEBUG
+    /// <summary>
+    /// Gets or sets a value indicating whether the property is enabled.
+    /// </summary>
+    /// <value>
+    /// <c>true</c> if the property is enabled; otherwise, <c>false</c>.
+    /// </value>
     public bool IsEnabled { get; set; } = true;
 #else
     public bool IsEnabled { get; set; } = false;
 #endif
+    /// <summary>
+    /// Gets or sets the rate in milliseconds at which the GbsStatus is updated.
+    /// </summary>
+    /// <value>
+    /// The rate in milliseconds at which the GbsStatus is updated. The default value is 1000 milliseconds.
+    /// </value>
     public int GbsStatusRateMs { get; set; } = 1000;
 }
 
+/// <summary>
+/// Represents a virtual GNSS module that generates mock GNSS data.
+/// </summary>
 [Export(typeof(IModule))]
 [PartCreationPolicy(CreationPolicy.Shared)]
 public class VirtualGnssModule: DisposableOnceWithCancel, IModule
 {
+    /// <summary>
+    /// A static readonly variable that holds an instance of the Logger class.
+    /// The Logger class is obtained from the LogManager class using the GetCurrentClassLogger method.
+    /// </summary>
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+    /// <summary>
+    /// Represents an instance of the GbsMavlinkService interface.
+    /// </summary>
     private readonly IGbsMavlinkService _svc;
+
+    /// <summary>
+    /// Holds the configuration settings for the VirtualGnssModule.
+    /// </summary>
     private readonly VirtualGnssModuleConfig _config;
+
+    /// <summary>
+    /// Represents a timer for tracking the time since the last action occurred.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="_lastActionTimer"/> provides a mechanism to measure the elapsed time since the last action. It is typicaly used in scenarios where you want to trigger certain actions
+    /// after a specific duration of inactivity.
+    /// </remarks>
     private IDisposable _lastActionTimer;
+
+    /// <summary>
+    /// Represents a random number generator.
+    /// </summary>
     private readonly Random _random;
 
+    /// <summary>
+    /// Represents a virtual GNSS module.
+    /// </summary>
     [ImportingConstructor]
     public VirtualGnssModule(IGbsMavlinkService svc,IConfiguration configuration)
     {
@@ -52,6 +97,10 @@ public class VirtualGnssModule: DisposableOnceWithCancel, IModule
         
     }
 
+    /// <summary>
+    /// Sends Gbs status to the server with specified data.
+    /// </summary>
+    /// <param name="l">The value used for calculating accuracy meter and observation sec. Should be a positive integer.</param>
     private void SendGbsStatus(long l)
     {
         _svc.Server.Gbs.Position.OnNext(new GeoPoint(55.2905802,61.6063891, 200.1));
@@ -69,6 +118,9 @@ public class VirtualGnssModule: DisposableOnceWithCancel, IModule
         _svc.Server.Gbs.AllSatellites.OnNext((byte)(_svc.Server.Gbs.GalSatellites.Value+_svc.Server.Gbs.BeidouSatellites.Value+_svc.Server.Gbs.GlonassSatellites.Value+_svc.Server.Gbs.GpsSatellites.Value+_svc.Server.Gbs.QzssSatellites.Value+_svc.Server.Gbs.SbasSatellites.Value+_svc.Server.Gbs.ImesSatellites.Value));
     }
 
+    /// <summary>
+    /// Initializes the object.
+    /// </summary>
     public void Init()
     {
         if (_config.IsEnabled == false) return;
@@ -77,6 +129,13 @@ public class VirtualGnssModule: DisposableOnceWithCancel, IModule
         _svc.Server.Gbs.CustomMode.OnNext(AsvGbsCustomMode.AsvGbsCustomModeIdle);
     }
 
+    /// <summary>
+    /// Starts the auto mode.
+    /// </summary>
+    /// <param name="duration">The duration.</param>
+    /// <param name="accuracy">The accuracy.</param>
+    /// <param name="cancel">The cancellation token.</param>
+    /// <returns>The task representing the operation.</returns>
     private Task<MavResult> StartAutoMode(float duration, float accuracy, CancellationToken cancel)
     {
         _svc.Server.StatusText.Info("StartAutoMode... wait 5 sec");
@@ -86,6 +145,13 @@ public class VirtualGnssModule: DisposableOnceWithCancel, IModule
         return Task.FromResult(MavResult.MavResultAccepted);
     }
 
+    /// <summary>
+    /// Starts the fixed mode.
+    /// </summary>
+    /// <param name="geoPoint">The geographical point.</param>
+    /// <param name="accuracy">The accuracy.</param>
+    /// <param name="cancel">The cancellation token.</param>
+    /// <returns>The task representing the asynchronous operation with a result of MavResult.</returns>
     private Task<MavResult> StartFixedMode(GeoPoint geoPoint, float accuracy, CancellationToken cancel)
     {
         _svc.Server.StatusText.Info("StartFixedMode... wait 5 sec");
@@ -95,6 +161,11 @@ public class VirtualGnssModule: DisposableOnceWithCancel, IModule
         return Task.FromResult(MavResult.MavResultAccepted);
     }
 
+    /// <summary>
+    /// Starts idle mode and waits for 5 seconds.
+    /// </summary>
+    /// <param name="cancel">The cancellation token to stop the idle mode.</param>
+    /// <returns>A task representing the completion of the idle mode operation.</returns>
     private Task<MavResult> StartIdleMode(CancellationToken cancel)
     {
         _svc.Server.StatusText.Info("StartIdleMode... wait 5 sec");

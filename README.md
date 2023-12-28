@@ -73,7 +73,7 @@ Our solution is organized the following way:
 
   ```
   sln/
-  ├── Asv.Drones.Gbs.sln/
+  ├── Asv.Drones.Gbs.sln
   └── Asv.Drones.Sdr/
       ├── Implementations/
       ├── Services/

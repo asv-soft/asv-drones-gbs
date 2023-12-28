@@ -60,8 +60,3 @@ To ensure a smooth development experience, follow the steps below to set up your
    ```
 
 Congratulations! Your development environment is now set up, and you are ready to start contributing to the project. If you encounter any issues during the setup process, refer to the project's documentation or reach out to the development team for assistance.
-
-## 3. Code Structure
-
-The organization of the codebase plays a crucial role in maintaining a clean, scalable, and easily understandable project. This section outlines the structure of our codebase, highlighting key directories and their purposes.
-

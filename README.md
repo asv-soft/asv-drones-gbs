@@ -1,7 +1,11 @@
-# asv-drones-gbs
+## 1.Introduction
 A ground base station service with Real-Time Kinematic (RTK) support
 
 ![image](https://github.com/asv-soft/asv-drones-gbs/assets/1770739/32cd7421-56a0-4a39-b365-55de64e512ac)
+
+In addition to its advanced communication capabilities, the SDR payload for drones also includes features such as geolocation and spectrum analysis, which enable operators to quickly and accurately locate and analyze radio signals in the surrounding environment. This information can be used to enhance situational awareness and support mission planning and execution.
+
+This solution should be used with the main project Asv.Drones, you can find out more about it [here](https://docs.asv.me/).
 
 ## 2. Getting Started
 

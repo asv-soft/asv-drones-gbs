@@ -32,6 +32,8 @@ public class VirtualGnssModuleConfig
     /// The rate in milliseconds at which the GbsStatus is updated. The default value is 1000 milliseconds.
     /// </value>
     public int GbsStatusRateMs { get; set; } = 1000;
+
+    public GeoPoint GbsPosition { get; set; } = new(55.2905802, 61.6063891, 200.1);
 }
 
 /// <summary>
@@ -103,7 +105,7 @@ public class VirtualGnssModule: DisposableOnceWithCancel, IModule
     /// <param name="l">The value used for calculating accuracy meter and observation sec. Should be a positive integer.</param>
     private void SendGbsStatus(long l)
     {
-        _svc.Server.Gbs.Position.OnNext(new GeoPoint(55.2905802,61.6063891, 200.1));
+        _svc.Server.Gbs.Position.OnNext(_config.GbsPosition);
         _svc.Server.Gbs.AccuracyMeter.OnNext(Math.Max(0,10*360 - l));
         _svc.Server.Gbs.ObservationSec.OnNext((ushort)l);
         _svc.Server.Gbs.DgpsRate.OnNext((ushort)_random.Next(0,115200));

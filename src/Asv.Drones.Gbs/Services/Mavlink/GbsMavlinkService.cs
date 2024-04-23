@@ -22,40 +22,34 @@ public class GbsServerServiceConfig
     /// <value>
     /// The array of <see cref="MavlinkPortConfig"/> objects that represent the configuration of the MAVLink ports.
     /// </value>
-    public MavlinkPortConfig[] Ports { get; set; } = new[]
-    {
-        
-        
-           
+    public MavlinkPortConfig[] Ports { get; set; } = {
 #if DEBUG
-        new MavlinkPortConfig
+        new()
         {
             ConnectionString = "tcp://127.0.0.1:7341?srv=true",
             Name = "Debug to Asv.Drones.Gui",
             IsEnabled = true
         },
-        new MavlinkPortConfig
+        new()
         {
             ConnectionString = "tcp://127.0.0.1:5762",
             Name = "Debug to SITL",
             IsEnabled = true
         }
 #else
-            new MavlinkPortConfig
-            {
-                ConnectionString = "serial:/dev/ttyS1?br=115200",
-                Name = "Modem",
-                IsEnabled = true
-            },
-            new MavlinkPortConfig
-            {
-                ConnectionString = "tcp://172.16.0.1:7341?srv=true",
-                Name = "WiFi",
-                IsEnabled = true
-            },
+        new()
+        {
+            ConnectionString = "serial:/dev/ttyS1?br=115200",
+            Name = "Modem",
+            IsEnabled = true
+        },
+        new()
+        {
+            ConnectionString = "tcp://172.16.0.1:7341?srv=true",
+            Name = "WiFi",
+            IsEnabled = true
+        }
 #endif               
-           
-            
     };
 
     /// <summary>

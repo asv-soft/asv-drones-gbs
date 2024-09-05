@@ -9,13 +9,42 @@ using NLog;
 
 namespace Asv.Drones.Gbs;
 
+/// <summary>
+/// Represents a GbsService class that handles the initialization and loading of modules.
+/// </summary>
 internal class GbsService : DisposableOnceWithCancel
 {
+    /// <summary>
+    /// The logger object used for logging messages.
+    /// </summary>
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+    /// <summary>
+    /// Represents the configuration object used throughout the application.
+    /// </summary>
     private readonly IConfiguration _config;
+
+    /// <summary>
+    /// The CompositionContainer used for managing dependencies and composing objects in the application.
+    /// </summary>
     private readonly CompositionContainer _container;
+
+    /// <summary>
+    /// Represents an array of modules.
+    /// </summary>
     private readonly IModule[] _modules;
 
+    /// <summary>
+    /// Represents a service used to initialize and load modules.
+    /// </summary>
+    /// <remarks>
+    /// This service is responsible for initializing modules by calling their <c>Init</c> method and disposing
+    /// them when the service is disposed. It uses dependency injection to provide necessary dependencies
+    /// to the modules.
+    /// </remarks>
+    /// <seealso cref="IModule"/>
+    /// <seealso cref="IConfiguration"/>
+    /// <seealso cref="IPacketSequenceCalculator"/>
     public GbsService(IConfiguration config)
     {
         var a = AppDomain.CurrentDomain.GetAssemblies().ToArray();
@@ -47,6 +76,16 @@ internal class GbsService : DisposableOnceWithCancel
         }
         
     }
+
+    /// <summary>
+    /// Gets the registered assemblies.
+    /// </summary>
+    /// <remarks>
+    /// Returns an enumeration of assemblies that are registered for the current instance.
+    /// </remarks>
+    /// <value>
+    /// An <see cref="System.Collections.Generic.IEnumerable{T}"/> of <see cref="System.Reflection.Assembly"/> objects representing the registered assemblies.
+    /// </value>
     private IEnumerable<Assembly> RegisterAssembly
     {
         get

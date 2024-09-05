@@ -6,10 +6,20 @@ using Spectre.Console.Cli;
 
 namespace Asv.Drones.Gbs;
 
+/// Represents the main program entry point.
+/// /
 public class Program
 {
+    /// <summary>
+    /// Logger variable for logging messages and events.
+    /// </summary>
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+    /// <summary>
+    /// The entry point of the application.
+    /// </summary>
+    /// <param name="args">The command-line arguments.</param>
+    /// <returns>The exit code of the application.</returns>
     static int Main(string[] args)
     {
         HandleExceptions();
@@ -35,7 +45,10 @@ public class Program
             return -99;
         }
     }
-    
+
+    /// <summary>
+    /// Handles unobserved task exceptions and unhandled AppDomain exceptions.
+    /// </summary>
     private static void HandleExceptions()
     {
 

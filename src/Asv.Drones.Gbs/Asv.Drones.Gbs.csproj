@@ -1,29 +1,59 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>$(TargetFrameworkValue)</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyVersion>0.1.0</AssemblyVersion>
-        <FileVersion>0.1.0</FileVersion>
+        <FileVersion>$(ProductVersion)</FileVersion>
+        <ApplicationVersion>$(ProductVersion)</ApplicationVersion>
+        <Version>$(ProductVersion)</Version>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Asv.Cfg" Version="1.13.1" />
-      <PackageReference Include="Asv.Gnss" Version="1.6.1" />
-      <PackageReference Include="Asv.Mavlink" Version="3.6.0-alpha07" />
-      <PackageReference Include="NLog" Version="5.2.6" />
-      <PackageReference Include="Spectre.Console" Version="0.46.0" />
-      <PackageReference Include="Spectre.Console.Cli" Version="0.46.0" />
-      <PackageReference Include="System.ComponentModel.Composition" Version="7.0.0" />
+        <PackageReference Include="Asv.Common" Version="$(AsvCommonVersion)" />
+        <PackageReference Include="Asv.IO" Version="$(AsvCommonVersion)" />
+        <PackageReference Include="Asv.Cfg" Version="$(AsvCommonVersion)" />
+        <PackageReference Include="Asv.Gnss" Version="$(AsvGnssVersion)" />
+        <PackageReference Include="Asv.Mavlink" Version="$(AsvMavlinkVersion)" />
+        <PackageReference Include="Asv.Sdr" Version="$(AsvSdrVersion)" />
+        <PackageReference Include="Asv.Sdr.LimeSdr" Version="$(AsvSdrVersion)" />
+        <PackageReference Include="Asv.Hal" Version="$(AsvHalVersion)" />
+        <PackageReference Include="DotNext.IO" Version="5.20.0" />
+
+
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(DotNetVersion)" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="$(DotNetVersion)" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(DotNetVersion)" />
+
+        <PackageReference Include="R3" Version="1.3.0" />
+        <PackageReference Include="ZLogger" Version="2.5.10" />
+        <PackageReference Include="ConsoleAppFramework" Version="5.2.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+      <ProjectReference Include="..\Asv.Drones.Gbs.Contracts\Asv.Drones.Gbs.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="linux_service.txt" />
-      <None Update="NLog.config">
+      <None Update="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="appsettings.Development.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="appsettings.Production.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="appsettings.Virtual.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services\" />
     </ItemGroup>
 
 </Project>

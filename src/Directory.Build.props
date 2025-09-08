@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <ProductVersion>2.0.0-dev.0</ProductVersion>
+    <AvaloniaVersion>11.3.2</AvaloniaVersion>
+    <DotNetVersion>9.0.3</DotNetVersion>
+     <TargetFrameworkValue>net9.0</TargetFrameworkValue>
+    <AsvCommonVersion>3.2.11-dev.2</AsvCommonVersion>
+    <AsvGnssVersion>2.0.2-dev.2</AsvGnssVersion>
+    <AsvSdrVersion>1.5.13</AsvSdrVersion>
+    <AsvHalVersion>1.0.8-dev.2</AsvHalVersion>
+    <AsvMavlinkVersion>4.0.18-dev.1</AsvMavlinkVersion>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(TargetFrameworkValue)</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <OutputPath>$(SolutionDir)..\..\asv-drones\src\Asv.Drones.Desktop\bin\Debug\net9.0\data\plugins\Asv.Drones.Plugin.Gbs\</OutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\asv-drones\src\Asv.Drones.Api\Asv.Drones.Api.csproj" />
+        <ProjectReference Include="..\Asv.Drones.Gbs.Contracts\Asv.Drones.Gbs.Contracts.csproj" />
+    </ItemGroup>
+</Project>

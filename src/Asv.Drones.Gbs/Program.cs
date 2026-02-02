@@ -31,7 +31,10 @@ builder
     // LED
     .AddDefaultGpioService()
     .AddLedService()
-    .AddLedHandler();
+    .AddLedHandler()
+    // RTK
+    .AddUBloxConnectionService()
+    .AddRtkHandler();
     
 var host = builder.Build();
 

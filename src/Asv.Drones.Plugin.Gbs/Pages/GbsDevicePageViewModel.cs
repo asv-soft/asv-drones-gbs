@@ -12,43 +12,42 @@ public interface IGbsPage : IDevicePage
     
 }
 
-public class GbsDevicePageViewModel : DevicePageViewModel<IGbsPage, GbsPageViewModelConfig>, IGbsPage
+public class GbsDevicePageViewModel : DevicePageViewModel<GbsDevicePageViewModel>, IGbsPage
 {
     public const string PageId = "gbs";
     
     public GbsDevicePageViewModel()
-        : this(NullDeviceManager.Instance, NullCommandService.Instance, DesignTime.ContainerHost,
-            DesignTime.Configuration, DesignTime.LoggerFactory)
+        : this(NullDeviceManager.Instance, DesignTime.CommandService, NullLayoutService.Instance, DesignTime.Configuration,
+            DesignTime.LoggerFactory, DesignTime.DialogService)
     {
         
     }
 
     [ImportingConstructor]
-    public GbsDevicePageViewModel(IDeviceManager devices, ICommandService cmd, IContainerHost containerHost,
-        IConfiguration cfg, ILoggerFactory loggerFactory)
-        : base(PageId, devices, cmd, cfg, loggerFactory)
+    public GbsDevicePageViewModel(IDeviceManager devices, ICommandService cmd,  ILayoutService layoutService,
+        IConfiguration cfg, ILoggerFactory loggerFactory, IDialogService dialogService)
+        : base(PageId, devices, cmd, layoutService, loggerFactory, dialogService)
     {
-        
     }
 
-    public override IEnumerable<IRoutable> GetRoutableChildren()
+
+    public override IEnumerable<IRoutable> GetChildren()
     {
-        return [];
+        throw new NotImplementedException();
     }
 
     protected override void AfterLoadExtensions()
     {
-        // do nothing
+        throw new NotImplementedException();
     }
 
     public override IExportInfo Source => GbsModule.Instance;
-    
     protected override void AfterDeviceInitialized(IClientDevice device, CancellationToken onDisconnectedToken)
     {
-        // do nothing
+        throw new NotImplementedException();
     }
 }
 
-public class GbsPageViewModelConfig : PageConfig
+public class GbsPageViewModelConfig
 {
 }

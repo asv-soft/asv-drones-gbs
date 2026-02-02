@@ -9,5 +9,7 @@
     <Design.DataContext>
         <gbs:GbsDevicePageViewModel/>
     </Design.DataContext>
-    GBS control widget here
+    <DockPanel>
+        <Button DockPanel.Dock="Left" Content="kjsdnf"></Button>
+    </DockPanel>
 </UserControl>

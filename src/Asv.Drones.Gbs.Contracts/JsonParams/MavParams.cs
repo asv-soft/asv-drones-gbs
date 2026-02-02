@@ -46,7 +46,7 @@ namespace Asv.Drones.Gbs.Contracts
         };
         /// <summary>
         /// BRD_COM_ID (int)
-        /// [0-255], default: 18
+        /// [0-255], default: 254
         /// Component ID
         /// 
         /// Units: 
@@ -68,7 +68,7 @@ namespace Asv.Drones.Gbs.Contracts
             Volatile = false,
             MinValue = (int)0,
             MaxValue = (int)255,
-            DefaultValue = (int)18,
+            DefaultValue = (int)254,
             Increment = (int)1,
             Values = [
             ],

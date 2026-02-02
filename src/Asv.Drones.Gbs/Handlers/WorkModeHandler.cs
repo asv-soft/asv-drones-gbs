@@ -36,6 +36,7 @@ public class WorkModeHandler : AsyncDisposableWithCancel, IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _mavlink.Heartbeat.Start();
+        _mavlink.Gbs.Start();
         return Task.CompletedTask;
     }
 

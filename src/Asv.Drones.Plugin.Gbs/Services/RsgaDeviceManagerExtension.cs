@@ -1,4 +1,5 @@
 ﻿using System.Composition;
+using Asv.Avalonia;
 using Asv.Avalonia.IO;
 using Asv.IO;
 using Asv.Mavlink;
@@ -33,9 +34,19 @@ public class GbsDeviceManagerExtension : IDeviceManagerExtension
         return false;
     }
 
+    public bool TryGetDeviceBrush(DeviceId id, out AsvColorKind brush)
+    {
+        throw new NotImplementedException();
+    }
+
     public bool TryGetDeviceBrush(DeviceId id, out IBrush? brush)
     {
         brush = null;
         return false;
+    }
+    
+    public void Run(IDeviceManager deviceManager)
+    {
+        // do nothing
     }
 }

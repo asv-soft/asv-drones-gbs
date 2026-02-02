@@ -30,7 +30,7 @@
       "shortDesc": "Component ID",
       "longDesc": "",
       "units": "",
-      "default": 18,
+      "default": 254,
       "decimalPlaces": 0,
       "min": 0,
       "max": 255,

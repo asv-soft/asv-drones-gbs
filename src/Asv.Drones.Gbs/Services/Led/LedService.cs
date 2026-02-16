@@ -21,20 +21,36 @@ public class LedService : ILedService, IDisposable, IAsyncDisposable
     private LedAnimation? _blink;
     private readonly ILogger<LedService> _logger;
 
-    public LedService(IOptions<LedServiceOptions> options, ILoggerFactory loggerFactory, IGpioProvider gpioService, TimeProvider timeProvider)
+    public LedService(
+        IOptions<LedServiceOptions> options,
+        ILoggerFactory loggerFactory,
+        IGpioProvider gpioService,
+        TimeProvider timeProvider
+    )
     {
         _logger = loggerFactory.CreateLogger<LedService>();
         _timeProvider = timeProvider;
         _animationLogger = loggerFactory.CreateLogger<LedAnimation>();
-        _led = options.Value.IsEnabled 
-            ? new GpioRgbLed(options.Value.Gpio,gpioService, loggerFactory.CreateLogger<GpioRgbLed>()) 
+        _led = options.Value.IsEnabled
+            ? new GpioRgbLed(
+                options.Value.Gpio,
+                gpioService,
+                loggerFactory.CreateLogger<GpioRgbLed>()
+            )
             : NullLed.Instance;
         _defaultTickDurationMs = TimeSpan.FromMilliseconds(options.Value.DefaultTickDurationMs);
     }
+
     public IDisposable LedAnimation(string record, TimeSpan? tickDuration = null)
     {
         _blink?.Dispose();
-        return _blink = new LedAnimation(_led, _timeProvider, tickDuration ?? _defaultTickDurationMs, record, _animationLogger);
+        return _blink = new LedAnimation(
+            _led,
+            _timeProvider,
+            tickDuration ?? _defaultTickDurationMs,
+            record,
+            _animationLogger
+        );
     }
 
     public void Dispose()
@@ -45,9 +61,12 @@ public class LedService : ILedService, IDisposable, IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (_blink is IAsyncDisposable blinkAsyncDisposable)
+        {
             await blinkAsyncDisposable.DisposeAsync();
-        else if (_blink != null)
-            _blink.Dispose();
+        }
+        else
+        {
+            _blink?.Dispose();
+        }
     }
 }
-

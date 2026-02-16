@@ -25,16 +25,16 @@ public class LedHandler : AsyncDisposableOnce, IHostedService
     {
         _ind = ind;
         var builder = Disposable.CreateBuilder();
-        mav.Params.OnUpdated
-            .Where(x => x.IsRemoteChange)
+        mav.Params.OnUpdated.Where(x => x.IsRemoteChange)
             .Subscribe(x => ind.LedAnimation("RG"))
             .AddTo(ref builder);
-        systemControl.IsRebootRequested
-            .Where(x => x)
+        systemControl
+            .IsRebootRequested.Where(x => x)
             .Subscribe(x => ind.LedAnimation("RGRG____RGR___RG__G"))
             .AddTo(ref builder);
-       _disposeIt = builder.Build();
+        _disposeIt = builder.Build();
     }
+
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _ind.LedAnimation("RG*");
@@ -59,9 +59,13 @@ public class LedHandler : AsyncDisposableOnce, IHostedService
     protected override async ValueTask DisposeAsyncCore()
     {
         if (_disposeIt is IAsyncDisposable disposeItAsyncDisposable)
+        {
             await disposeItAsyncDisposable.DisposeAsync();
+        }
         else
+        {
             _disposeIt.Dispose();
+        }
 
         await base.DisposeAsyncCore();
     }

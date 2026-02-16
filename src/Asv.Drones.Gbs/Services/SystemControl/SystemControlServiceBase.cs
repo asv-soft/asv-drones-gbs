@@ -20,11 +20,11 @@ public abstract class SystemControlServiceBase : AsyncDisposableWithCancel, ISys
             SystemControlAction.Reboot => InternalReboot(),
             SystemControlAction.Shutdown => InternalShutdown(),
             SystemControlAction.Restart => InternalRestart(),
-            _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(action), action, null),
         };
     }
 
-    protected abstract Task InternalReboot();   
+    protected abstract Task InternalReboot();
 
     protected virtual Task InternalRestart()
     {
@@ -34,5 +34,4 @@ public abstract class SystemControlServiceBase : AsyncDisposableWithCancel, ISys
 
     protected abstract Task InternalShutdown();
     public ReadOnlyReactiveProperty<bool> IsRebootRequested => _isRebootRequested;
-
 }

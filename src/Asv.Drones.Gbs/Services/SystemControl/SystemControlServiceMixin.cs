@@ -12,7 +12,10 @@ public static class SystemControlServiceMixin
         {
             builder.Services.AddSingleton<ISystemControlService>(new SystemControlServiceWindows());
         }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        else if (
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+            || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+        )
         {
             builder.Services.AddSingleton<ISystemControlService>(new SystemControlServiceUnix());
         }

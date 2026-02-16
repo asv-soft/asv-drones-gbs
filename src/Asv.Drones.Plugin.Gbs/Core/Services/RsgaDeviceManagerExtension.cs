@@ -3,7 +3,6 @@ using Asv.Avalonia;
 using Asv.Avalonia.IO;
 using Asv.IO;
 using Asv.Mavlink;
-using Avalonia.Media;
 using Material.Icons;
 
 namespace Asv.Drones.Plugin.Gbs;
@@ -36,15 +35,10 @@ public class GbsDeviceManagerExtension : IDeviceManagerExtension
 
     public bool TryGetDeviceBrush(DeviceId id, out AsvColorKind brush)
     {
-        throw new NotImplementedException();
-    }
-
-    public bool TryGetDeviceBrush(DeviceId id, out IBrush? brush)
-    {
-        brush = null;
+        brush = AsvColorKind.None;
         return false;
     }
-    
+
     public void Run(IDeviceManager deviceManager)
     {
         // do nothing

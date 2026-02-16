@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "husky": {
+      "version": "0.8.0",
+      "commands": [
+        "husky"
+      ],
+      "rollForward": false
+    },
+    "run-script": {
+      "version": "0.6.0",
+      "commands": [
+        "r"
+      ],
+      "rollForward": false
+    },
+    "csharpier": {
+      "version": "1.2.1",
+      "commands": [
+        "csharpier"
+      ],
+      "rollForward": false
+    }
+  }
+}

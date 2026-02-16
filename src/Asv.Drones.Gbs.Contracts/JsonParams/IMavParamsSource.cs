@@ -6,4 +6,3 @@ public interface IMavParamsSource
 {
     IEnumerable<IMavParamTypeMetadata> Params { get; }
 }
-

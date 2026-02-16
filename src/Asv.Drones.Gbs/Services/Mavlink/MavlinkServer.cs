@@ -19,18 +19,27 @@ public class MavlinkServer : AsyncDisposableOnce, IMavlinkService
 
     public MavlinkServer(
         IOptions<MavlinkServerOptions> options,
-        IMavParamsSource paramsSource, 
+        IMavParamsSource paramsSource,
         ILoggerFactory loggerFactory,
         IMeterFactory meterFactory,
         TimeProvider timeProvider,
-        IConfiguration userConfig)
+        IConfiguration userConfig
+    )
     {
         var logger = loggerFactory.CreateLogger<MavlinkServer>();
-        var systemId = MavParams.BrdSysId.ReadFromConfig(userConfig, options.Value.Params.CfgPrefix);
-        var componentId = MavParams.BrdComId.ReadFromConfig(userConfig, options.Value.Params.CfgPrefix);
-        var wrapToV2Extension = (byte)MavParams.BrdV2extOn.ReadFromConfig(userConfig, options.Value.Params.CfgPrefix) != 0;
+        var systemId = MavParams.BrdSysId.ReadFromConfig(
+            userConfig,
+            options.Value.Params.CfgPrefix
+        );
+        var componentId = MavParams.BrdComId.ReadFromConfig(
+            userConfig,
+            options.Value.Params.CfgPrefix
+        );
+        var wrapToV2Extension =
+            (byte)MavParams.BrdV2extOn.ReadFromConfig(userConfig, options.Value.Params.CfgPrefix)
+            != 0;
         var builder = Disposable.CreateBuilder();
-        
+
         var protocol = Protocol.Create(builder =>
         {
             builder.SetLog(loggerFactory);
@@ -43,30 +52,39 @@ public class MavlinkServer : AsyncDisposableOnce, IMavlinkService
             }
             builder.Features.RegisterBroadcastFeature<MavlinkV2Message>();
         });
-        
-        Router = protocol.CreateRouter("GBS")
-            .AddTo(ref builder);
+
+        Router = protocol.CreateRouter("GBS").AddTo(ref builder);
         Identity = new MavlinkIdentity(systemId, componentId);
         foreach (var port in options.Value.Connections)
         {
             logger.ZLogTrace($"Add port {port}");
             Router.AddPort(port);
         }
-        
+
         var seq = new PacketSequenceCalculator();
         var core = new CoreServices(seq, Router, protocol);
-        
+
         Heartbeat = new HeartbeatServer(Identity, options.Value.Heartbeat, core).AddTo(ref builder);
-        StatusText = new StatusTextServer(Identity, options.Value.StatusText, core).AddTo(ref builder);
+        StatusText = new StatusTextServer(Identity, options.Value.StatusText, core).AddTo(
+            ref builder
+        );
         Commands = new CommandServer(Identity, core).AddTo(ref builder);
         CommandLongEx = new CommandLongServerEx(Commands).AddTo(ref builder);
         ParamsBase = new ParamsServer(Identity, core).AddTo(ref builder);
-        Params = new ParamsServerEx(ParamsBase,StatusText,paramsSource.Params,new MavParamByteWiseEncoding(),userConfig,options.Value.Params)
-            .AddTo(ref builder);
-        Diagnostic = new DiagnosticServer(Identity, options.Value.Diagnostic, core).AddTo(ref builder);
-        
+        Params = new ParamsServerEx(
+            ParamsBase,
+            StatusText,
+            paramsSource.Params,
+            new MavParamByteWiseEncoding(),
+            userConfig,
+            options.Value.Params
+        ).AddTo(ref builder);
+        Diagnostic = new DiagnosticServer(Identity, options.Value.Diagnostic, core).AddTo(
+            ref builder
+        );
+
         GbsBase = new AsvGbsServer(Identity, options.Value.Gbs, core).AddTo(ref builder);
-        Gbs = new AsvGbsExServer(GbsBase,Heartbeat,CommandLongEx).AddTo(ref builder);
+        Gbs = new AsvGbsExServer(GbsBase, Heartbeat, CommandLongEx).AddTo(ref builder);
         _disposeIt = builder.Build();
     }
 
@@ -96,9 +114,13 @@ public class MavlinkServer : AsyncDisposableOnce, IMavlinkService
     protected override async ValueTask DisposeAsyncCore()
     {
         if (_disposeIt is IAsyncDisposable disposeItAsyncDisposable)
+        {
             await disposeItAsyncDisposable.DisposeAsync();
+        }
         else
+        {
             _disposeIt.Dispose();
+        }
 
         await base.DisposeAsyncCore();
     }

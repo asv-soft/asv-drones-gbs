@@ -6,12 +6,14 @@ namespace Asv.Drones.Gbs;
 
 public static class MavlinkServiceMixin
 {
-    public static IHostApplicationBuilder AddMavlinkServer(this IHostApplicationBuilder builder, 
-        IMavParamsSource paramsSource)
+    public static IHostApplicationBuilder AddMavlinkServer(
+        this IHostApplicationBuilder builder,
+        IMavParamsSource paramsSource
+    )
     {
-        builder.Services
-            .AddSingleton(paramsSource)
-            .AddSingleton<IMavlinkService,MavlinkServer>()
+        builder
+            .Services.AddSingleton(paramsSource)
+            .AddSingleton<IMavlinkService, MavlinkServer>()
             .AddOptions<MavlinkServerOptions>()
             .Bind(builder.Configuration.GetSection(MavlinkServerOptions.Section));
         return builder;

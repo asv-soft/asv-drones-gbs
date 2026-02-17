@@ -1,0 +1,10 @@
+[*.cs]
+dotnet_diagnostic.RCS1037.severity = none
+dotnet_diagnostic.RCS1251.severity = none
+
+[*.axaml]
+csharpier_formatter = xml
+indent_size = 4
+
+[**/JsonParams/MavParams.cs]
+generated_code = true

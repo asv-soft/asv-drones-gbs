@@ -9,7 +9,9 @@ namespace Asv.Drones.Gbs;
 
 public static class WorkModeHandlerMixin
 {
-    public static IHostApplicationBuilder AddMavlinkWorkModeHandler(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddMavlinkWorkModeHandler(
+        this IHostApplicationBuilder builder
+    )
     {
         builder.Services.AddHostedService<WorkModeHandler>();
         return builder;
@@ -26,7 +28,7 @@ public class WorkModeHandler : AsyncDisposableWithCancel, IHostedService
         mavlink.Heartbeat.Set(hb =>
         {
             hb.Autopilot = MavAutopilot.MavAutopilotInvalid;
-            hb.Type = (Mavlink.Minimal.MavType) Mavlink.AsvGbs.MavType.MavTypeAsvGbs;
+            hb.Type = (Mavlink.Minimal.MavType)Mavlink.AsvGbs.MavType.MavTypeAsvGbs;
             hb.SystemStatus = MavState.MavStateActive;
             hb.BaseMode = MavModeFlag.MavModeFlagCustomModeEnabled;
             hb.MavlinkVersion = 3;

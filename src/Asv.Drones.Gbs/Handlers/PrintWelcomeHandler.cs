@@ -9,19 +9,23 @@ namespace Asv.Drones.Gbs;
 
 public static class PrintWelcomeHandlerMixin
 {
-    public static IHostApplicationBuilder AddPrintWelcomeHandler(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddPrintWelcomeHandler(
+        this IHostApplicationBuilder builder
+    )
     {
         builder.Services.AddHostedService<PrintWelcomeHandler>();
         return builder;
     }
 }
 
-public class PrintWelcomeHandler(IMavlinkService mavlink, TimeProvider timeProvider) : AsyncDisposableWithCancel, IHostedService
+public class PrintWelcomeHandler(IMavlinkService mavlink, TimeProvider timeProvider)
+    : AsyncDisposableWithCancel,
+        IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
         // ReSharper disable once MethodSupportsCancellation
-        Task.Factory.StartNew(PrintInformation,  DisposeCancel);
+        Task.Factory.StartNew(PrintInformation, DisposeCancel);
         return Task.CompletedTask;
     }
 

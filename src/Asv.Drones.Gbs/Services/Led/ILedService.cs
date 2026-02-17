@@ -2,5 +2,5 @@
 
 public interface ILedService
 {
-    IDisposable LedAnimation(string record,TimeSpan? tickDuration = null);
+    IDisposable LedAnimation(string record, TimeSpan? tickDuration = null);
 }

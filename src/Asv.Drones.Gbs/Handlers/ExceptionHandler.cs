@@ -22,28 +22,29 @@ public class ExceptionHandler : IHostedService
     public ExceptionHandler(ILoggerFactory loggerFactory)
     {
         var logger = loggerFactory.CreateLogger(nameof(ExceptionHandler));
-        AsyncTaskExtensions.SetDefaultExceptionHandler(x=> logger.ZLogWarning(x,$"Error to execute task: {x.Message}"));
+        AsyncTaskExtensions.SetDefaultExceptionHandler(x =>
+            logger.ZLogWarning(x, $"Error to execute task: {x.Message}")
+        );
         ObservableSystem.RegisterUnhandledExceptionHandler(ex =>
         {
             {
-                logger.ZLogCritical(ex,
-                    $"R3 unobserved exception: {ex.Message}");
-                //Debug.Fail($"R3 unobserved exception: {ex.Message}");
-            };
+                logger.ZLogCritical(ex, $"R3 unobserved exception: {ex.Message}");
+            }
         });
-        TaskScheduler.UnobservedTaskException +=
-            (sender, args) =>
-            {
-                logger.ZLogCritical(args.Exception,
-                    $"Task scheduler unobserved task exception from '{sender}': {args.Exception.Message}");
-                Debug.Fail($"Task scheduler unobserved exception: {args.Exception.Message}");
-            };
-        AppDomain.CurrentDomain.UnhandledException +=
-            (sender, eventArgs) =>
-            {
-                logger.ZLogCritical($"Unhandled AppDomain exception. Sender '{sender}'. Args: {eventArgs.ExceptionObject}");
-                //Debug.Fail($"Unhandled AppDomain exception: {eventArgs.ExceptionObject}");
-            };
+        TaskScheduler.UnobservedTaskException += (sender, args) =>
+        {
+            logger.ZLogCritical(
+                args.Exception,
+                $"Task scheduler unobserved task exception from '{sender}': {args.Exception.Message}"
+            );
+            Debug.Fail($"Task scheduler unobserved exception: {args.Exception.Message}");
+        };
+        AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
+        {
+            logger.ZLogCritical(
+                $"Unhandled AppDomain exception. Sender '{sender}'. Args: {eventArgs.ExceptionObject}"
+            );
+        };
     }
 
     public Task StartAsync(CancellationToken cancellationToken)

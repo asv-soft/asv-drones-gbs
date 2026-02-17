@@ -1,21 +1,21 @@
-﻿
-
-using Asv.Drones.Gbs;
+﻿using Asv.Drones.Gbs;
 using Asv.Drones.Gbs.Contracts;
 using Asv.Drones.Gbs.Gpio;
 using Asv.Drones.Rsga;
 using Microsoft.Extensions.Hosting;
 
-var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
-{
+var builder = Host.CreateApplicationBuilder(
+    new HostApplicationBuilderSettings {
 #if DEBUG
-    //EnvironmentName = Environments.Development,
-    EnvironmentName = "Virtual",
+        // EnvironmentName = Environments.Development,
+        EnvironmentName = "Virtual",
 #else
-    EnvironmentName = Environments.Production,
+        EnvironmentName = Environments.Production,
 #endif
-    Args = args,
-});
+#pragma warning disable SA1413
+        Args = args }
+#pragma warning restore SA1413
+);
 
 builder
     .AddSystemTimeProvider()
@@ -25,17 +25,17 @@ builder
     .AddMavlinkServer(MavParams.Instance)
     .AddMavlinkWorkModeHandler()
     .AddPrintWelcomeHandler()
-    // System control
+    /* System control */
     .AddSystemControl()
     .AddSystemControlHandler()
-    // LED
+    /* LED */
     .AddDefaultGpioService()
     .AddLedService()
     .AddLedHandler()
-    // RTK
+    /* RTK */
     .AddUBloxConnectionService()
     .AddRtkHandler();
-    
+
 var host = builder.Build();
 
 host.Start();

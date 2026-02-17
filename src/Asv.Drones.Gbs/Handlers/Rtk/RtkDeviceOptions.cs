@@ -43,11 +43,8 @@ public class RtkDeviceOptions
     /// <value>
     /// An array of ushort values representing RTCMv3 message IDs.
     /// </value>
-    public ushort[] RtcmV3MessagesIdsToSend { get; set; } = {
-        1005 , 1006 , 1074 , 1077 ,
-        1084 , 1087 , 1094 , 1097 ,
-        1124 , 1127 , 1230 , 4072
-    };
+    public ushort[] RtcmV3MessagesIdsToSend { get; set; } =
+        { 1005, 1006, 1074, 1077, 1084, 1087, 1094, 1097, 1124, 1127, 1230, 4072 };
 
     /// <summary>
     /// Gets or sets the rate at which messages are processed in hertz (Hz).

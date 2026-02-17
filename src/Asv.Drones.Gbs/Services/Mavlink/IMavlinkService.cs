@@ -14,6 +14,6 @@ public interface IMavlinkService
     ICommandServerEx<CommandLongPacket> CommandLongEx { get; }
     IParamsServerEx Params { get; }
     IDiagnosticServer Diagnostic { get; }
-    
+
     IAsvGbsServerEx Gbs { get; }
 }

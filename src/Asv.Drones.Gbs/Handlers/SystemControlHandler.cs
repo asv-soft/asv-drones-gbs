@@ -9,7 +9,9 @@ namespace Asv.Drones.Rsga;
 
 public static class SystemControlMixin
 {
-    public static IHostApplicationBuilder AddSystemControlHandler(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddSystemControlHandler(
+        this IHostApplicationBuilder builder
+    )
     {
         builder.Services.AddHostedService<SystemControlHandler>();
         return builder;
@@ -18,13 +20,33 @@ public static class SystemControlMixin
 
 public class SystemControlHandler : AsyncDisposableWithCancel, IHostedService
 {
-    public SystemControlHandler(IMavlinkService mavlink, ISystemControlService svc, ILoggerFactory loggerFactory)
+    public SystemControlHandler(
+        IMavlinkService mavlink,
+        ISystemControlService svc,
+        ILoggerFactory loggerFactory
+    )
     {
         var logger = loggerFactory.CreateLogger<SystemControlHandler>();
-        mavlink.Params.OnInt32Command(MavParams.BrdRestartCmd, DisposeCancel, logger, cancel => svc.Do(SystemControlAction.Restart));
-        mavlink.Params.OnInt32Command(MavParams.BrdRebootCmd, DisposeCancel, logger, cancel => svc.Do(SystemControlAction.Reboot));
-        mavlink.Params.OnInt32Command(MavParams.BrdShutdownCmd, DisposeCancel, logger, cancel => svc.Do(SystemControlAction.Shutdown));
+        mavlink.Params.OnInt32Command(
+            MavParams.BrdRestartCmd,
+            DisposeCancel,
+            logger,
+            cancel => svc.Do(SystemControlAction.Restart)
+        );
+        mavlink.Params.OnInt32Command(
+            MavParams.BrdRebootCmd,
+            DisposeCancel,
+            logger,
+            cancel => svc.Do(SystemControlAction.Reboot)
+        );
+        mavlink.Params.OnInt32Command(
+            MavParams.BrdShutdownCmd,
+            DisposeCancel,
+            logger,
+            cancel => svc.Do(SystemControlAction.Shutdown)
+        );
     }
+
     public Task StartAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;

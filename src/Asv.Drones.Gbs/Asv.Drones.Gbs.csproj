@@ -9,7 +9,24 @@
         <ApplicationVersion>$(ProductVersion)</ApplicationVersion>
         <Version>$(ProductVersion)</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-
+        <CodeAnalysisRuleSet>../CodeStyle.ruleset</CodeAnalysisRuleSet>
+        <WarningsAsErrors>
+            CS0169,
+            CS0618,
+            CS1502,
+            CS1503,
+            CS8524,
+            CS8600,
+            CS8601,
+            CS8602,
+            CS8603,
+            CS8604,
+            CS8625,
+            CS8629,
+            CS8762,
+            CA1510,
+            CA1851
+        </WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,6 +46,16 @@
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(DotNetVersion)" />
 
         <PackageReference Include="R3" Version="1.3.0" />
+
+        <PackageReference Include="Roslynator.Analyzers" Version="$(RoslynAnalyzersVersion)">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+
+        <PackageReference Include="StyleCop.Analyzers" Version="$(StylecopAnalyzersVersion)">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="ZLogger" Version="2.5.10" />
         <PackageReference Include="ConsoleAppFramework" Version="5.2.3">
             <PrivateAssets>all</PrivateAssets>

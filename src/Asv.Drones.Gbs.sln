@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		.run\GUI.run.xml = .run\GUI.run.xml
 		.run\Service.run.xml = .run\Service.run.xml
+		.run\GUI+Service.run.xml = .run\GUI+Service.run.xml
+		.run\GUI(Windows).run.xml = .run\GUI(Windows).run.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Gbs.Contracts", "Asv.Drones.Gbs.Contracts\Asv.Drones.Gbs.Contracts.csproj", "{14D93A1F-9908-4857-83A9-7E8B3C22475D}"

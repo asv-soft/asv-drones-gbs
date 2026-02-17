@@ -10,12 +10,9 @@ public class SystemControlServiceUnix : SystemControlServiceBase
         return Task.CompletedTask;
     }
 
-    
     protected override Task InternalShutdown()
     {
         Process.Start("/usr/bin/sudo", "/bin/systemctl poweroff");
         return Task.CompletedTask;
-        
     }
-    
 }

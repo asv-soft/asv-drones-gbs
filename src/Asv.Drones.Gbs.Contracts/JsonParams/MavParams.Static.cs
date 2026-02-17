@@ -10,7 +10,9 @@ public partial class MavParams
 
     public const string BOARD = "BOARD";
 
-    public static IEnumerable<IMavParamTypeMetadata> Filter(Func<IMavParamTypeMetadata, bool> predicate)
+    public static IEnumerable<IMavParamTypeMetadata> Filter(
+        Func<IMavParamTypeMetadata, bool> predicate
+    )
     {
         return Instance.Params.Where(predicate);
     }

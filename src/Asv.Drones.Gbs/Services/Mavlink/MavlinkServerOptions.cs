@@ -3,8 +3,6 @@ using Asv.Mavlink.Diagnostic.Server;
 
 namespace Asv.Drones.Gbs;
 
-
-
 public class MavlinkServerOptions
 {
     public const string Section = "Mavlink";

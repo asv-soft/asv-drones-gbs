@@ -1,0 +1,91 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    xmlns:gbs="clr-namespace:Asv.Drones.Plugin.Gbs"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="800"
+    x:Class="Asv.Drones.Plugin.Gbs.SettingsSavedCoordsView"
+    x:CompileBindings="True"
+    x:DataType="gbs:SettingsSavedCoordsViewModel"
+>
+    <Design.DataContext>
+        <gbs:SettingsSavedCoordsViewModel />
+    </Design.DataContext>
+    <DockPanel Margin="8" HorizontalAlignment="Stretch">
+        <Grid DockPanel.Dock="Top" RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*">
+            <avalonia:MaterialIcon Grid.RowSpan="2" Kind="LocationOn" Classes="big" />
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="1"
+                Classes="h2"
+                Text="{x:Static gbs:RS.SettingsSavedCoordsView_Title_Text}"
+            />
+            <TextBlock
+                Grid.Row="1"
+                Grid.Column="1"
+                Classes="description"
+                Text="{x:Static gbs:RS.SettingsSavedCoordsView_Description_Text}"
+            />
+        </Grid>
+        <ListBox
+            Margin="0,8,0,0"
+            ItemsSource="{Binding SavedCoordinates}"
+            SelectedItem="{Binding SelectedCoordsItem.Value, Mode=TwoWay}"
+            CornerRadius="{DynamicResource ControlCornerRadius}"
+            Grid.IsSharedSizeScope="True"
+        >
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="MinHeight" Value="30"></Setter>
+                </Style>
+            </ListBox.Styles>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition SharedSizeGroup="Name" Width="Auto" />
+                            <ColumnDefinition SharedSizeGroup="Latitude" Width="Auto" />
+                            <ColumnDefinition SharedSizeGroup="Longitude" Width="Auto" />
+                            <ColumnDefinition SharedSizeGroup="Altitude" Width="Auto" />
+                            <ColumnDefinition SharedSizeGroup="Accuracy" Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Margin="5,0"
+                            Grid.Column="0"
+                            Text="{Binding Name}"
+                        />
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Margin="5,0"
+                            Grid.Column="1"
+                            Text="{Binding Latitude}"
+                        />
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Margin="5,0"
+                            Grid.Column="2"
+                            Text="{Binding Longitude}"
+                        />
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Margin="5,0"
+                            Grid.Column="3"
+                            Text="{Binding Altitude}"
+                        />
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Margin="5,0"
+                            Grid.Column="4"
+                            Text="{Binding Accuracy}"
+                        />
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</UserControl>

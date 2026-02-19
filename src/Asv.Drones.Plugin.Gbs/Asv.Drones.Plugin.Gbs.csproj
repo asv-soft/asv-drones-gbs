@@ -2,6 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>$(TargetFrameworkValue)</TargetFramework>
+        
+        <FileVersion>$(ProductVersion)</FileVersion>
+        <Version>$(ProductVersion)</Version>
+        <PackageVersion>$(ProductVersion)</PackageVersion>
+        
         <LangVersion>preview</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -36,11 +41,21 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Shell\" />
+      <Folder Include="Shell\Pages\Settings\Subpages\" />
     </ItemGroup>
     <ItemGroup>
       <Compile Update="Shell\Pages\Devices\Gbs\GbsDevicePageView.axaml.cs">
         <DependentUpon>GbsDevicePageView.axaml</DependentUpon>
         <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Shell\Pages\Settings\Subpages\SavedCoordinates\Dialogs\AddCoords\AddCoordsRecordDialogView.axaml.cs">
+        <DependentUpon>AddCoordsRecordDialogView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="RS.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>RS.resx</DependentUpon>
       </Compile>
     </ItemGroup>
     <ItemGroup>
@@ -52,5 +67,14 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+      <AdditionalFiles Include="Shell\Pages\Settings\Subpages\SavedCoordinates\SettingsSavedCoordsView.axaml" />
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Update="RS.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>RS.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
     </ItemGroup>
 </Project>

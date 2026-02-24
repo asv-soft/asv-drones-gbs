@@ -14,6 +14,6 @@
         <gbs:GbsDevicePageViewModel />
     </Design.DataContext>
     <DockPanel>
-        <Button DockPanel.Dock="Left" Content="kjsdnf"></Button>
+        <Button DockPanel.Dock="Left" Content="Temporary example page"></Button>
     </DockPanel>
 </UserControl>

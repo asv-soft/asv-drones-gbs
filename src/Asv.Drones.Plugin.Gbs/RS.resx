@@ -51,10 +51,10 @@
     <data name="AddCoordsRecordDialogView_InputField_Accuracy" xml:space="preserve">
         <value>Accuracy</value>
     </data>
-    <data name="SettingsPageExtension_Group_Gbs_Title" xml:space="preserve">
+    <data name="SettingsPage_Group_Gbs_Title" xml:space="preserve">
         <value>Gbs</value>
     </data>
-    <data name="SettingsPageExtension_Group_Gbs_FixedModeCoords_Title" xml:space="preserve">
+    <data name="SettingsPage_Group_Gbs_FixedModeCoords_Title" xml:space="preserve">
         <value>FixedMode Coordinates</value>
     </data>
 </root>

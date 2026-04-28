@@ -27,6 +27,7 @@ public class MavlinkServer : AsyncDisposableOnce, IMavlinkService
     )
     {
         var logger = loggerFactory.CreateLogger<MavlinkServer>();
+        var msgFactory = MavlinkV2Protocol.CreateMessageFactory();
         var systemId = MavParams.BrdSysId.ReadFromConfig(
             userConfig,
             options.Value.Params.CfgPrefix
@@ -45,10 +46,10 @@ public class MavlinkServer : AsyncDisposableOnce, IMavlinkService
             builder.SetLog(loggerFactory);
             builder.SetMetrics(meterFactory);
             builder.SetTimeProvider(timeProvider);
-            builder.RegisterMavlinkV2Protocol();
+            builder.RegisterMavlinkV2Protocol(msgFactory);
             if (wrapToV2Extension)
             {
-                builder.Features.RegisterMavlinkV2WrapFeature();
+                builder.Features.RegisterMavlinkV2WrapFeature(msgFactory);
             }
             builder.Features.RegisterBroadcastFeature<MavlinkV2Message>();
         });
@@ -62,7 +63,7 @@ public class MavlinkServer : AsyncDisposableOnce, IMavlinkService
         }
 
         var seq = new PacketSequenceCalculator();
-        var core = new CoreServices(seq, Router, protocol);
+        var core = new CoreServices(Router, msgFactory, seq);
 
         Heartbeat = new HeartbeatServer(Identity, options.Value.Heartbeat, core).AddTo(ref builder);
         StatusText = new StatusTextServer(Identity, options.Value.StatusText, core).AddTo(

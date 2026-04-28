@@ -33,14 +33,13 @@
         </WarningsAsErrors>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <OutputPath>$(SolutionDir)..\..\asv-drones\src\Asv.Drones.Desktop\bin\Debug\$(TargetFramework)\data\plugins\Asv.Drones.Plugin.Gbs\</OutputPath>
+        <OutputPath>$(SolutionDir)..\..\asv-drones\src\Asv.Drones.Desktop\bin\Debug\$(TargetFramework)\plugins\Asv.Drones.Plugin.Gbs\</OutputPath>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\..\asv-drones\src\Asv.Drones.Api\Asv.Drones.Api.csproj" />
         <ProjectReference Include="..\Asv.Drones.Gbs.Contracts\Asv.Drones.Gbs.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Shell\" />
       <Folder Include="Shell\Pages\Settings\Subpages\" />
     </ItemGroup>
     <ItemGroup>

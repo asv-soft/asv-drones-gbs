@@ -44,10 +44,10 @@
     <data name="AddCoordsRecordDialogView_InputField_Accuracy" xml:space="preserve">
         <value>Точность</value>
     </data>
-    <data name="SettingsPageExtension_Group_Gbs_Title" xml:space="preserve">
+    <data name="SettingsPage_Group_Gbs_Title" xml:space="preserve">
         <value>Гбс</value>
     </data>
-    <data name="SettingsPageExtension_Group_Gbs_FixedModeCoords_Title" xml:space="preserve">
+    <data name="SettingsPage_Group_Gbs_FixedModeCoords_Title" xml:space="preserve">
         <value>Координаты для фиксированного режима</value>
     </data>
 </root>

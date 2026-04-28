@@ -1,11 +1,7 @@
-using System.Composition;
 using Asv.Avalonia;
 
 namespace Asv.Drones.Plugin.Gbs;
 
-[Export(typeof(IAsyncCommand))]
-[Shared]
-[method: ImportingConstructor]
 public class OpenGbsPageCommand(INavigationService nav)
     : OpenPageCommandBase(GbsDevicePageViewModel.PageId, nav)
 {
@@ -16,8 +12,7 @@ public class OpenGbsPageCommand(INavigationService nav)
         Id = Id,
         Name = "Open GBS control page",
         Description = "Command that opens GBS control page",
-        Icon = GbsModule.DefaultIcon,
-        Source = GbsModule.Instance,
+        Icon = GbsPluginMixin.DefaultIcon,
         DefaultHotKey = null,
     };
 

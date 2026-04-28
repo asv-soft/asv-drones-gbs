@@ -1,5 +1,4 @@
-﻿using System.Composition;
-using Asv.Avalonia;
+﻿using Asv.Avalonia;
 using Asv.Avalonia.IO;
 using Asv.IO;
 using Asv.Mavlink;
@@ -7,8 +6,6 @@ using Material.Icons;
 
 namespace Asv.Drones.Plugin.Gbs;
 
-[Export(typeof(IDeviceManagerExtension))]
-[Shared]
 public class GbsDeviceManagerExtension : IDeviceManagerExtension
 {
     public void Configure(IProtocolBuilder builder)
@@ -25,7 +22,7 @@ public class GbsDeviceManagerExtension : IDeviceManagerExtension
     {
         if (id.DeviceClass == GbsClientDevice.DeviceClass)
         {
-            icon = GbsModule.DefaultIcon;
+            icon = GbsPluginMixin.DefaultIcon;
             return true;
         }
 

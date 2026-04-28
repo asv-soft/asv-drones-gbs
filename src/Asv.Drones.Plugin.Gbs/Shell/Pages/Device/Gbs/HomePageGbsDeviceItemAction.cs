@@ -1,4 +1,3 @@
-using System.Composition;
 using Asv.Avalonia;
 using Asv.Avalonia.IO;
 using Asv.IO;
@@ -7,10 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Asv.Drones.Plugin.Gbs;
 
-[ExportExtensionFor<IHomePageItem>]
-[method: ImportingConstructor]
-public class HomePageGbsDeviceActionExtension(ILoggerFactory loggerFactory)
-    : HomePageDeviceItemAction
+public class HomePageGbsDeviceItemAction(ILoggerFactory loggerFactory) : HomePageDeviceItemAction
 {
     protected override IActionViewModel? TryCreateAction(
         IClientDevice device,
@@ -24,7 +20,7 @@ public class HomePageGbsDeviceActionExtension(ILoggerFactory loggerFactory)
 
         return new ActionViewModel(GbsDevicePageViewModel.PageId, loggerFactory)
         {
-            Icon = GbsModule.DefaultIcon,
+            Icon = OpenGbsPageCommand.StaticInfo.Icon,
             Header = "Gbs control",
             Description = "Ground base station device control",
             Command = new BindableAsyncCommand(OpenGbsPageCommand.Id, context),

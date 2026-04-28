@@ -13,13 +13,14 @@ public sealed class AddCoordsRecordDialogViewModel : DialogViewModelBase
     private readonly SerialDisposable _sub;
 
     public AddCoordsRecordDialogViewModel()
-        : this(null, DesignTime.UnitService, DesignTime.LoggerFactory)
+        : this(null, NullMapService.Instance, DesignTime.UnitService, DesignTime.LoggerFactory)
     {
         DesignTime.ThrowIfNotDesignMode();
     }
 
     public AddCoordsRecordDialogViewModel(
         FixedModeConfig? baseValue,
+        IMapService mapService,
         IUnitService unitService,
         ILoggerFactory loggerFactory
     )
@@ -58,7 +59,8 @@ public sealed class AddCoordsRecordDialogViewModel : DialogViewModelBase
         Accuracy.ForceValidate();
         GeoPointDialogViewModel = new GeoPointDialogViewModel(
             loggerFactory,
-            unitService
+            unitService,
+            mapService
         ).DisposeItWith(Disposable);
 
         if (baseValue is not null)

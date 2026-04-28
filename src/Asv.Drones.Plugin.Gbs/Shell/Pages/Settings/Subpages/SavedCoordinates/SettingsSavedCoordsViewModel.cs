@@ -1,6 +1,6 @@
-using System.Composition;
 using System.Windows.Input;
 using Asv.Avalonia;
+using Asv.Avalonia.GeoMap;
 using Asv.Cfg;
 using Asv.Common;
 using Material.Icons;
@@ -24,12 +24,12 @@ public class FixedModeSavedCoords
     public IList<FixedModeConfig> Coords { get; set; } = [];
 }
 
-[ExportSettings(SubPageId)]
 public class SettingsSavedCoordsViewModel : SettingsSubPage
 {
     public const string SubPageId = "saved_coords";
-    public static MaterialIconKind Icon => GbsModule.DefaultIcon;
+    public static MaterialIconKind Icon => GbsPluginMixin.DefaultIcon;
 
+    private readonly IMapService _mapService;
     private readonly YesOrNoDialogPrefab _yesOrNoDialog;
     private readonly INavigationService _navigationService;
     private readonly ILoggerFactory _loggerFactory;
@@ -41,6 +41,7 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
         : this(
             DesignTime.DialogService,
             DesignTime.Configuration,
+            NullMapService.Instance,
             DesignTime.Navigation,
             DesignTime.UnitService,
             DesignTime.LoggerFactory
@@ -49,10 +50,10 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
         DesignTime.ThrowIfNotDesignMode();
     }
 
-    [ImportingConstructor]
     public SettingsSavedCoordsViewModel(
         IDialogService dialogService,
         IConfiguration configuration,
+        IMapService mapService,
         INavigationService navigationService,
         IUnitService unitService,
         ILoggerFactory loggerFactory
@@ -64,6 +65,7 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
         _loggerFactory = loggerFactory;
         _unitService = unitService;
         _cfg = configuration;
+        _mapService = mapService;
 
         _savedCoordinates = new ObservableList<FixedModeConfig>(
             configuration.Get<FixedModeSavedCoords>().Coords
@@ -120,6 +122,7 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
         cancel.ThrowIfCancellationRequested();
         using var vm = new AddCoordsRecordDialogViewModel(
             SelectedCoordsItem.Value,
+            _mapService,
             _unitService,
             _loggerFactory
         );
@@ -185,6 +188,4 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
 
     public BindableReactiveProperty<FixedModeConfig?> SelectedCoordsItem { get; }
     public INotifyCollectionChangedSynchronizedViewList<FixedModeConfig> SavedCoordinates { get; }
-
-    public override IExportInfo Source => GbsModule.Instance;
 }

@@ -3,6 +3,7 @@ using Asv.Avalonia;
 using Asv.Avalonia.GeoMap;
 using Asv.Cfg;
 using Asv.Common;
+using Asv.Modeling;
 using Material.Icons;
 using Microsoft.Extensions.Logging;
 using ObservableCollections;
@@ -29,20 +30,18 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
     public const string SubPageId = "saved_coords";
     public static MaterialIconKind Icon => GbsPluginMixin.DefaultIcon;
 
-    private readonly IMapService _mapService;
+    private readonly IDialogService _dialogService;
     private readonly YesOrNoDialogPrefab _yesOrNoDialog;
-    private readonly INavigationService _navigationService;
-    private readonly ILoggerFactory _loggerFactory;
     private readonly IUnitService _unitService;
     private readonly ObservableList<FixedModeConfig> _savedCoordinates;
     private readonly IConfiguration _cfg;
 
     public SettingsSavedCoordsViewModel()
         : this(
+            DesignTimeSettingsSubPageContext.Instance,
             DesignTime.DialogService,
             DesignTime.Configuration,
             NullMapService.Instance,
-            DesignTime.Navigation,
             DesignTime.UnitService,
             DesignTime.LoggerFactory
         )
@@ -51,21 +50,19 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
     }
 
     public SettingsSavedCoordsViewModel(
+        ITreeSubPageContext<ISettingsPage> context,
         IDialogService dialogService,
         IConfiguration configuration,
         IMapService mapService,
-        INavigationService navigationService,
         IUnitService unitService,
         ILoggerFactory loggerFactory
     )
-        : base(SubPageId, loggerFactory)
+        : base(SubPageId, context)
     {
+        _dialogService = dialogService;
         _yesOrNoDialog = dialogService.GetDialogPrefab<YesOrNoDialogPrefab>();
-        _navigationService = navigationService;
-        _loggerFactory = loggerFactory;
         _unitService = unitService;
         _cfg = configuration;
-        _mapService = mapService;
 
         _savedCoordinates = new ObservableList<FixedModeConfig>(
             configuration.Get<FixedModeSavedCoords>().Coords
@@ -94,7 +91,7 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
         RemoveItemCommand = canRemove.ToReactiveCommand<Unit>(RemoveItem).DisposeItWith(Disposable);
 
         Menu.Add(
-            new MenuItem("add", RS.SettingsSavedCoordsViewModel_MenuItem_Add_Header, loggerFactory)
+            new MenuItem("add", RS.SettingsSavedCoordsViewModel_MenuItem_Add_Header)
             {
                 Order = 1,
                 Icon = MaterialIconKind.Add,
@@ -103,11 +100,7 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
         );
 
         Menu.Add(
-            new MenuItem(
-                "remove",
-                RS.SettingsSavedCoordsViewModel_MenuItem_Remove_Header,
-                loggerFactory
-            )
+            new MenuItem("remove", RS.SettingsSavedCoordsViewModel_MenuItem_Remove_Header)
             {
                 Order = 2,
                 Icon = MaterialIconKind.Delete,
@@ -122,11 +115,10 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
         cancel.ThrowIfCancellationRequested();
         using var vm = new AddCoordsRecordDialogViewModel(
             SelectedCoordsItem.Value,
-            _mapService,
             _unitService,
-            _loggerFactory
+            _dialogService
         );
-        var dialog = new ContentDialog(vm, _navigationService)
+        var dialog = new ContentDialog(vm)
         {
             Title = RS.SettingsSavedCoordsViewModel_AddNewItemDialog_Title,
             PrimaryButtonText = RS.SettingsSavedCoordsViewModel_AddNewItemDialog_PrimaryButtonText,
@@ -141,15 +133,7 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
             return;
         }
 
-        var config = new FixedModeConfig
-        {
-            Accuracy = vm.Accuracy.ModelValue.Value,
-            Name = vm.Name.Value,
-            Latitude = vm.GeoPointDialogViewModel.GeoPointProperty.ModelValue.Value.Latitude,
-            Longitude = vm.GeoPointDialogViewModel.GeoPointProperty.ModelValue.Value.Longitude,
-            Altitude = vm.GeoPointDialogViewModel.GeoPointProperty.ModelValue.Value.Altitude,
-        };
-        _savedCoordinates.Add(config);
+        _savedCoordinates.Add(vm.GetResult());
 
         UpdateCfg(_cfg);
     }
@@ -172,6 +156,7 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
         if (SelectedCoordsItem.Value is not null)
         {
             _savedCoordinates.Remove(SelectedCoordsItem.Value);
+            SelectedCoordsItem.Value = null;
             UpdateCfg(_cfg);
         }
     }
@@ -188,4 +173,14 @@ public class SettingsSavedCoordsViewModel : SettingsSubPage
 
     public BindableReactiveProperty<FixedModeConfig?> SelectedCoordsItem { get; }
     public INotifyCollectionChangedSynchronizedViewList<FixedModeConfig> SavedCoordinates { get; }
+}
+
+internal sealed class DesignTimeSettingsSubPageContext : ITreeSubPageContext<ISettingsPage>
+{
+    public static ITreeSubPageContext<ISettingsPage> Instance { get; } =
+        new DesignTimeSettingsSubPageContext();
+
+    public NavArgs Args => default;
+
+    public ISettingsPage Context => null!;
 }

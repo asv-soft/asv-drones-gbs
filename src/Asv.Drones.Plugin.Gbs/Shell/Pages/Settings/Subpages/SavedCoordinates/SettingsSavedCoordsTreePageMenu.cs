@@ -1,4 +1,5 @@
-﻿using Asv.Avalonia;
+using Asv.Avalonia;
+using Asv.Modeling;
 using Microsoft.Extensions.Logging;
 
 namespace Asv.Drones.Plugin.Gbs;
@@ -10,8 +11,8 @@ public class SettingsSavedCoordsTreePageMenu : TreePage
             SettingsSavedCoordsViewModel.SubPageId,
             RS.SettingsPage_Group_Gbs_FixedModeCoords_Title,
             SettingsSavedCoordsViewModel.Icon,
-            SettingsSavedCoordsViewModel.SubPageId,
-            SettingsGbsGroup.GroupId,
+            new NavId(SettingsSavedCoordsViewModel.SubPageId),
+            new NavId(SettingsGbsGroup.GroupId),
             loggerFactory
         ) { }
 }

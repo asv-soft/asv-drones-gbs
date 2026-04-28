@@ -1,6 +1,4 @@
-﻿using Asv.Avalonia;
-
-namespace Asv.Drones.Plugin.Gbs;
+﻿namespace Asv.Drones.Plugin.Gbs;
 
 public static class PagesMixin
 {
@@ -25,6 +23,7 @@ public static class PagesMixin
         {
             builder.Pages.RegisterDevicePages();
             builder.Pages.RegisterGbsSettings();
+            builder.Pages.RegisterFlightMode();
         }
 
         public ShellMixin.Builder Shell => builder;

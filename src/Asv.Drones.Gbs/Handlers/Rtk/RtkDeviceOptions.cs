@@ -9,6 +9,15 @@ public class RtkDeviceOptions
     public bool IsEnabled { get; set; } = false;
 
     /// <summary>
+    /// Gets or sets a value indicating whether this GNSS device is allowed to act as an RTK base.
+    /// </summary>
+    /// <remarks>
+    /// When disabled, the device still provides telemetry, position and satellite status, but
+    /// RTCMv3 output and RTK mode commands are not enabled.
+    /// </remarks>
+    public bool IsEnabledRtk { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets the connection string for the serial port.
     /// </summary>
     /// <value>

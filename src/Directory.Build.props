@@ -1,0 +1,15 @@
+<Project>
+    <PropertyGroup>
+        <ProductVersion>2.1.0-dev.0</ProductVersion>
+        <AvaloniaVersion>11.3.12</AvaloniaVersion>
+        <DotNetVersion>10.0.0</DotNetVersion>
+        <TargetFrameworkValue>net10.0</TargetFrameworkValue>
+        <AsvCommonVersion>3.6.0-dev.0</AsvCommonVersion>
+        <AsvGnssVersion>2.1.0</AsvGnssVersion>
+        <AsvSdrVersion>1.5.26</AsvSdrVersion>
+        <AsvHalVersion>1.0.10</AsvHalVersion>
+        <AsvMavlinkVersion>4.2.0</AsvMavlinkVersion>
+        <RoslynAnalyzersVersion>4.14.0</RoslynAnalyzersVersion>
+        <StylecopAnalyzersVersion>1.1.118</StylecopAnalyzersVersion>
+    </PropertyGroup>
+</Project>

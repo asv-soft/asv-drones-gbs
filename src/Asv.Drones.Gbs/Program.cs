@@ -1,67 +1,43 @@
-﻿using System.Reflection;
-using System.Text;
-using NLog;
-using Spectre.Console;
-using Spectre.Console.Cli;
+﻿using Asv.Drones.Gbs;
+using Asv.Drones.Gbs.Contracts;
+using Asv.Drones.Gbs.Gpio;
+using Asv.Drones.Rsga;
+using Microsoft.Extensions.Hosting;
 
-namespace Asv.Drones.Gbs;
-
-/// Represents the main program entry point.
-/// /
-public class Program
-{
-    /// <summary>
-    /// Logger variable for logging messages and events.
-    /// </summary>
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-    /// <summary>
-    /// The entry point of the application.
-    /// </summary>
-    /// <param name="args">The command-line arguments.</param>
-    /// <returns>The exit code of the application.</returns>
-    static int Main(string[] args)
-    {
-        HandleExceptions();
-        Assembly.GetExecutingAssembly().PrintWelcomeToConsole();
-        Console.InputEncoding = Encoding.UTF8;
-        Console.OutputEncoding = Encoding.UTF8;
-        var app = new CommandApp<StartServerCommand>();
-        app.Configure(config =>
-        {
-            config.PropagateExceptions();
+var builder = Host.CreateApplicationBuilder(
+    new HostApplicationBuilderSettings {
 #if DEBUG
-            config.ValidateExamples();
+        // EnvironmentName = Environments.Development,
+        EnvironmentName = "Virtual",
+#else
+        EnvironmentName = Environments.Production,
 #endif
-        });
-        try
-        {
-            return app.Run(args);
-        }
-        catch (Exception ex)
-        {
-            Logger.Fatal(ex);
-            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
-            return -99;
-        }
-    }
+#pragma warning disable SA1413
+        Args = args }
+#pragma warning restore SA1413
+);
 
-    /// <summary>
-    /// Handles unobserved task exceptions and unhandled AppDomain exceptions.
-    /// </summary>
-    private static void HandleExceptions()
-    {
+builder
+    .AddSystemTimeProvider()
+    .AddExceptionHandler()
+    .AddDefaultLogging()
+    .AddUserConfig("usersettings.json")
+    .AddMavlinkServer(MavParams.Instance)
+    .AddMavlinkWorkModeHandler()
+    .AddPrintWelcomeHandler()
+    /* System control */
+    .AddSystemControl()
+    .AddSystemControlHandler()
+    /* LED */
+    .AddDefaultGpioService()
+    .AddLedService()
+    .AddLedHandler()
+    /* RTK */
+    .AddUBloxConnectionService()
+    .AddRtkHandler();
 
-        TaskScheduler.UnobservedTaskException +=
-            (sender, args) =>
-            {
-                Logger.Fatal(args.Exception, $"Task scheduler unobserver task exception from '{sender}': {args.Exception.Message}");
-            };
+var host = builder.Build();
 
-        AppDomain.CurrentDomain.UnhandledException +=
-            (sender, eventArgs) =>
-            {
-                Logger.Fatal($"Unhandled AppDomain exception. Sender '{sender}'. Args: {eventArgs.ExceptionObject}");
-            };
-    }
-}
+host.Start();
+
+host.WaitForShutdown();

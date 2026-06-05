@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="SettingsSavedCoordsView_Title_Text" xml:space="preserve">
+        <value>Saved Coordinates</value>
+    </data>
+    <data name="SettingsSavedCoordsView_Description_Text" xml:space="preserve">
+        <value>In this section you can view and save new map coordinates for GBS Fixed Mode</value>
+    </data>
+    <data name="SettingsSavedCoordsViewModel_MenuItem_Add_Header" xml:space="preserve">
+        <value>Add</value>
+    </data>
+    <data name="SettingsSavedCoordsViewModel_MenuItem_Remove_Header" xml:space="preserve">
+        <value>Remove</value>
+    </data>
+    <data name="SettingsSavedCoordsViewModel_AddNewItemDialog_Title" xml:space="preserve">
+        <value>Add new map coordinates</value>
+    </data>
+    <data name="SettingsSavedCoordsViewModel_AddNewItemDialog_PrimaryButtonText" xml:space="preserve">
+        <value>Add</value>
+    </data>
+    <data name="SettingsSavedCoordsViewModel_AddNewItemDialog_CloseButtonText" xml:space="preserve">
+        <value>Close</value>
+    </data>
+    <data name="SettingsSavedCoordsViewModel_RemoveItemDialog_Title" xml:space="preserve">
+        <value>Remove</value>
+    </data>
+    <data name="SettingsSavedCoordsViewModel_RemoveItemDialog_Message" xml:space="preserve">
+        <value>Do you want to remove the map coordinates?</value>
+    </data>
+    <data name="AddCoordsRecordDialogView_InputField_Name" xml:space="preserve">
+        <value>Name</value>
+    </data>
+    <data name="AddCoordsRecordDialogView_InputField_Accuracy" xml:space="preserve">
+        <value>Accuracy</value>
+    </data>
+    <data name="SettingsPage_Group_Gbs_Title" xml:space="preserve">
+        <value>Gbs</value>
+    </data>
+    <data name="SettingsPage_Group_Gbs_FixedModeCoords_Title" xml:space="preserve">
+        <value>FixedMode Coordinates</value>
+    </data>
+</root>

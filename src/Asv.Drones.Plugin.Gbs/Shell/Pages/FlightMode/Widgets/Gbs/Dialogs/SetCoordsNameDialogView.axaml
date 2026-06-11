@@ -1,0 +1,18 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:avalonia="clr-namespace:Asv.Avalonia;assembly=Asv.Avalonia"
+    xmlns:gbs1="clr-namespace:Asv.Drones.Plugin.Gbs"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:Class="Asv.Drones.Plugin.Gbs.SetCoordsNameDialogView"
+    x:DataType="gbs1:SetCoordsNameDialogViewModel"
+>
+    <Design.DataContext>
+        <gbs1:SetCoordsNameDialogViewModel />
+    </Design.DataContext>
+    <avalonia:PropertyEditorView DataContext="{Binding FieldsEditor}" />
+</UserControl>

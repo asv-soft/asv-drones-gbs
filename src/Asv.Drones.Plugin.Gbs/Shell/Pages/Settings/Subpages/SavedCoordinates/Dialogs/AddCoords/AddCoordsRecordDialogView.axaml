@@ -3,9 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:geoMap="clr-namespace:Asv.Avalonia.GeoMap;assembly=Asv.Avalonia.GeoMap"
     xmlns:gbs="clr-namespace:Asv.Drones.Plugin.Gbs"
-    xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    xmlns:avalonia1="clr-namespace:Asv.Avalonia;assembly=Asv.Avalonia"
     mc:Ignorable="d"
     x:Class="Asv.Drones.Plugin.Gbs.AddCoordsRecordDialogView"
     x:DataType="gbs:AddCoordsRecordDialogViewModel"
@@ -15,77 +14,5 @@
         <gbs:AddCoordsRecordDialogViewModel />
     </Design.DataContext>
 
-    <Grid DockPanel.Dock="Top" Margin="10" RowDefinitions="* 5 * 5 * 5 *">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition SharedSizeGroup="Icon" Width="Auto" />
-            <ColumnDefinition SharedSizeGroup="Name" Width="Auto" />
-            <ColumnDefinition SharedSizeGroup="Input" Width="350" />
-        </Grid.ColumnDefinitions>
-        <avalonia:MaterialIcon Kind="Rename" />
-        <TextBlock
-            Grid.Row="0"
-            Grid.Column="1"
-            Text="{x:Static gbs:RS.AddCoordsRecordDialogView_InputField_Name}"
-            VerticalAlignment="Center"
-            Margin="5 0 5 0"
-        />
-        <TextBox
-            Grid.Row="0"
-            Grid.Column="2"
-            VerticalAlignment="Center"
-            HorizontalAlignment="Stretch"
-            Text="{CompiledBinding Name.Value}"
-        />
-
-        <avalonia:MaterialIcon Grid.Row="2" Grid.Column="0" Kind="CompareHorizontal" />
-        <TextBlock
-            Grid.Row="2"
-            Grid.Column="1"
-            Text="{x:Static gbs:RS.AddCoordsRecordDialogView_InputField_Accuracy}"
-            VerticalAlignment="Center"
-            Margin="5 0 5 0"
-        />
-        <TextBox
-            Grid.Row="2"
-            Grid.Column="2"
-            VerticalAlignment="Center"
-            HorizontalAlignment="Stretch"
-            Text="{CompiledBinding Accuracy.ViewValue.Value}"
-        >
-            <TextBox.Styles>
-                <Style Selector="TextBox">
-                    <Setter Property="InnerRightContent">
-                        <Template>
-                            <TextBlock
-                                Text="{CompiledBinding UnitSymbol.Value}"
-                                VerticalAlignment="Center"
-                                Margin="0 0 5 0"
-                            />
-                        </Template>
-                    </Setter>
-                </Style>
-            </TextBox.Styles>
-        </TextBox>
-        <Border
-            Grid.Row="4"
-            Grid.Column="0"
-            Grid.ColumnSpan="3"
-            Height="1"
-            CornerRadius="{DynamicResource ControlCornerRadius}"
-            Background="{DynamicResource AsvForegroundUnknownColor}"
-            Opacity="0.35"
-            Margin="0,2"
-            HorizontalAlignment="Stretch"
-        />
-        <Viewbox
-            Grid.Row="6"
-            Grid.Column="0"
-            Grid.ColumnSpan="3"
-            Width="450"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-        >
-            <geoMap:GeoPointDialogView DataContext="{CompiledBinding GeoPointDialogViewModel}" />
-        </Viewbox>
-    </Grid>
+    <avalonia1:PropertyEditorView DataContext="{Binding FieldsEditor}" />
 </UserControl>

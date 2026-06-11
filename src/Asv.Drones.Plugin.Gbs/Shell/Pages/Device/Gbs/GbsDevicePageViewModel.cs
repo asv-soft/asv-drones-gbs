@@ -1,7 +1,10 @@
-﻿using Asv.Avalonia;
+using Asv.Avalonia;
 using Asv.Avalonia.IO;
+using Asv.Common;
 using Asv.IO;
+using Asv.Modeling;
 using Microsoft.Extensions.Logging;
+using R3;
 
 namespace Asv.Drones.Plugin.Gbs;
 
@@ -13,33 +16,36 @@ public class GbsDevicePageViewModel : DevicePageViewModel<GbsDevicePageViewModel
 
     public GbsDevicePageViewModel()
         : this(
+            DesignTime.PageContext,
             NullDeviceManager.Instance,
-            DesignTime.CommandService,
-            NullLayoutService.Instance,
             DesignTime.LoggerFactory,
             DesignTime.DialogService,
             DesignTime.ExtensionService
         ) { }
 
     public GbsDevicePageViewModel(
+        IPageContext context,
         IDeviceManager devices,
-        ICommandService cmd,
-        ILayoutService layoutService,
         ILoggerFactory loggerFactory,
         IDialogService dialogService,
         IExtensionService ext
     )
-        : base(PageId, devices, cmd, layoutService, loggerFactory, dialogService, ext) { }
+        : base(PageId, context, devices, loggerFactory, dialogService, ext)
+    {
+        Target
+            .Where(w => w.HasValue)
+            .Select(w => w!.Value)
+            .ObserveOnUIThreadDispatcher()
+            .Subscribe(w => OnDeviceConnected(w.Device, w.WhenDisconnectedToken))
+            .DisposeItWith(Disposable);
+    }
 
-    public override IEnumerable<IRoutable> GetChildren()
+    public override IEnumerable<IViewModel> GetChildren()
     {
         return [];
     }
 
     protected override void AfterLoadExtensions() { }
 
-    protected override void AfterDeviceInitialized(
-        IClientDevice device,
-        CancellationToken onDisconnectedToken
-    ) { }
+    private void OnDeviceConnected(IClientDevice device, CancellationToken onDisconnectedToken) { }
 }

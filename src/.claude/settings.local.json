@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /d \"D:\\\\C#_code\\\\asv-drones-gbs\")",
+      "Bash(cd \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\")",
+      "Bash(find \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" -name \"*.cs\" -type f -exec grep -l \"CreateViewModel\" {} \\\\;)",
+      "Bash(find \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" -name \"*Extension.cs\" -type f)",
+      "Bash(find \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" -name \"GbsAnchor.cs\" -type f)",
+      "Bash(find \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" -type f -name \"*.cs\" -exec grep -l \"ITelemetrySection\\\\|TelemetrySectionView\" {} \\\\;)",
+      "Bash(find \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" -type f -name \"*Action*.cs\")",
+      "Bash(grep -r \"IExtensionFor\" \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" --include=\"*.cs\")",
+      "Bash(grep -r \"Extensions.Register\" \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" --include=\"*.cs\" -B 2 -A 2)",
+      "Bash(grep -r \"services\\\\.\" \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" --include=\"*.cs\")",
+      "Bash(grep -r \"\\\\.AddSingleton\\\\|\\\\.AddTransient\\\\|\\\\.AddScoped\" \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" --include=\"*.cs\")",
+      "Bash(find \"D:\\\\\\\\C#_code\\\\\\\\asv-drones-gbs\\\\\\\\src\" -name \"*.cs\" -type f -exec grep -l \"IExtensionFor\\\\|Extensions.Register\" {} \\\\;)",
+      "Bash(xargs grep *)",
+      "Bash(grep -E \"\\\\.\\(cs|csproj\\)$\")"
+    ]
+  }
+}

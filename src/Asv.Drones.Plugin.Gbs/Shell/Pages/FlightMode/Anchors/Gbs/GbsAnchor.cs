@@ -14,7 +14,6 @@ namespace Asv.Drones.Plugin.Gbs;
 public class GbsAnchor : MapAnchor<GbsAnchor>
 {
     public const string UavAnchorIdBase = "gbs";
-    private const uint CurrentPositionChangeThrottleMs = 200;
 
     public GbsAnchor()
         : base(DesignTime.Id.TypeId, DesignTime.ExtensionService)
@@ -41,11 +40,18 @@ public class GbsAnchor : MapAnchor<GbsAnchor>
         CenterX = DeviceIconMixin.GetIconCenterX(DeviceId);
         CenterY = DeviceIconMixin.GetIconCenterY(DeviceId);
         UseMapRotation = false;
-        gbs.Name.ObserveOnUIThreadDispatcher()
-            .Subscribe(x => Header = x ?? string.Empty)
+        gbs.Name.DistinctUntilChanged()
+            .ThrottleLast(TimeSpan.FromMilliseconds(200))
+            .ObserveOnUIThreadDispatcher()
+            .Subscribe(header => Header = header)
             .DisposeItWith(Disposable);
-        pos.Position.ObserveOnUIThreadDispatcher()
-            .Subscribe(x => Location = x)
+        pos.Position.DistinctUntilChanged()
+            .Where(p =>
+                !double.IsNaN(p.Latitude) && !double.IsNaN(p.Longitude) && !double.IsNaN(p.Altitude)
+            )
+            .ThrottleLast(TimeSpan.FromMilliseconds(200))
+            .ObserveOnUIThreadDispatcher()
+            .Subscribe(p => Location = p)
             .DisposeItWith(Disposable);
     }
 

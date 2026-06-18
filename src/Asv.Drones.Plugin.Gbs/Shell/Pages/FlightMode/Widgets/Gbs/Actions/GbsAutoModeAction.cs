@@ -71,6 +71,6 @@ public sealed class GbsAutoModeAction<TWidget>(
         var cfg = viewModel.GetResult();
         configuration.Set(cfg);
 
-        await gbs.StartAutoMode((float)cfg.Accuracy, (float)cfg.Observation, cancel);
+        await gbs.StartAutoMode((float)cfg.Observation, (float)cfg.Accuracy, cancel);
     }
 }

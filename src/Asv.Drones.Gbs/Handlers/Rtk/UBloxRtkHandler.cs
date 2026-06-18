@@ -270,18 +270,18 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
     }
 
     /// <summary>
-    /// Handles the process of sending RTCM MSM4 messages asynchronously.
+    /// Handles the process of sending RTCM messages asynchronously.
     /// </summary>
     /// <param name="cancel">Cancellation token to allow for cancellation of the operation.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    private async Task RtcmMSM4On(CancellationToken cancel)
+    private async Task RtcmOn(CancellationToken cancel, bool force = false)
     {
         if (_config.IsEnabledRtk == false)
         {
             return;
         }
 
-        if (_areRtcmSending)
+        if (_areRtcmSending && force == false)
         {
             return;
         }
@@ -291,16 +291,16 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
             return;
         }
 
-        await _device.Client.SetupRtcmMSM4Rate(_config.MessageRateHz, cancel).ConfigureAwait(false);
+        await _device.SetRtcmOutput(true, cancel).ConfigureAwait(false);
         _areRtcmSending = true;
     }
 
     /// <summary>
     /// Turns off the Real-Time Kinematic (RTK) Compact Measurement Message (CMM) Stream.
-    /// </summary>й
+    /// </summary>
     /// <param name="cancel">The cancellation token to cancel the async operation.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    private async Task RtcmMSMOff(CancellationToken cancel)
+    private async Task RtcmOff(CancellationToken cancel)
     {
         if (!_areRtcmSending)
         {
@@ -312,7 +312,7 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
             return;
         }
 
-        await _device.Client.SetupRtcmMSM4Rate(0, cancel).ConfigureAwait(false);
+        await _device.SetRtcmOutput(false, cancel).ConfigureAwait(false);
         _areRtcmSending = false;
     }
 
@@ -361,7 +361,7 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
                     case TMode3Enum.Disabled:
                         _svc.Gbs.CustomMode.Value = AsvGbsCustomMode.AsvGbsCustomModeIdle;
                         _svc.Gbs.Position.Value = position;
-                        await RtcmMSMOff(DisposeCancel).ConfigureAwait(false);
+                        await RtcmOff(DisposeCancel).ConfigureAwait(false);
                         break;
                     case TMode3Enum.SurveyIn:
                         var state = _svIn.Value.Active
@@ -371,19 +371,19 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
                         if (state == AsvGbsCustomMode.AsvGbsCustomModeAuto)
                         {
                             _svc.Gbs.Position.Value = _svIn.Value.Location ?? position;
-                            await RtcmMSM4On(DisposeCancel).ConfigureAwait(false);
+                            await RtcmOn(DisposeCancel).ConfigureAwait(false);
                         }
                         else
                         {
                             _svc.Gbs.Position.Value = position;
-                            await RtcmMSMOff(DisposeCancel).ConfigureAwait(false);
+                            await RtcmOff(DisposeCancel).ConfigureAwait(false);
                         }
 
                         break;
                     case TMode3Enum.FixedMode:
                         _svc.Gbs.CustomMode.Value = AsvGbsCustomMode.AsvGbsCustomModeFixed;
                         _svc.Gbs.Position.Value = cfgTMode3.Location ?? position;
-                        await RtcmMSM4On(DisposeCancel).ConfigureAwait(false);
+                        await RtcmOn(DisposeCancel).ConfigureAwait(false);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -491,6 +491,7 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
                     cancel: cancel
                 )
                 .ConfigureAwait(false);
+            await RtcmOff(cancel).ConfigureAwait(false);
             await _device.Client.RebootReceiver(cancel).ConfigureAwait(false);
             return MavResult.MavResultAccepted;
         }
@@ -603,6 +604,7 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
 
             _svc.StatusText.Info($"Set GNSS Fixed Mode ({geoPoint})");
             await _device.Client.SetFixedBaseMode(geoPoint, accuracy, cancel).ConfigureAwait(false);
+            await RtcmOn(cancel, true).ConfigureAwait(false);
             return MavResult.MavResultAccepted;
         }
         catch (Exception e)
@@ -786,7 +788,7 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
             await Client.TurnOffNmea(CancellationToken.None);
             await Client.SetMessageRate<UbxNavSvin>(_config.MessageRateHz); // surveyin msg - for feedback
             await Client.SetMessageRate<UbxNavPvt>(_config.MessageRateHz); // pvt msg - for feedback
-            await SetupRtcmOutput().ConfigureAwait(false);
+            await SetRtcmOutput(false, DisposeCancel).ConfigureAwait(false);
 
             // NAV-VELNED - 1s
             await Client.SetMessageRate(
@@ -874,15 +876,15 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
         }
     }
 
-    private async Task SetupRtcmOutput()
+    public async Task SetRtcmOutput(bool enabled, CancellationToken cancel)
     {
-        if (_config.IsEnabledRtk)
+        if (enabled && _config.IsEnabledRtk)
         {
             await Client
                 .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0x05, 5)
                 .ConfigureAwait(false); // 1005 - 5s
             await Client
-                .SetupRtcmMSM4Rate(_config.MessageRateHz, DisposeCancel)
+                .SetupRtcmMSM4Rate(_config.MessageRateHz, cancel)
                 .ConfigureAwait(false);
             await Client
                 .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0xE6, 5)
@@ -894,7 +896,7 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
         await Client
             .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0x05, 0)
             .ConfigureAwait(false);
-        await Client.SetupRtcmMSM4Rate(0, DisposeCancel).ConfigureAwait(false);
+        await Client.SetupRtcmMSM4Rate(0, cancel).ConfigureAwait(false);
         await Client
             .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0xE6, 0)
             .ConfigureAwait(false);

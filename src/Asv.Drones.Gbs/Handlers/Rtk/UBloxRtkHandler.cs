@@ -831,6 +831,7 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
             svc.Gbs.CustomMode.Value = AsvGbsCustomMode.AsvGbsCustomModeIdle;
 
             IsInit = true;
+            await AutoStartFixedMode(svc).ConfigureAwait(false);
             _initUbxSub?.Dispose();
             _initUbxSub = null;
         }
@@ -845,6 +846,31 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
             _initUbxSub = Observable
                 .Timer(TimeSpan.FromMilliseconds(_config.ReconnectTimeoutMs))
                 .Subscribe(_ => Init(svc, router).SafeFireAndForget());
+        }
+    }
+
+    private async Task AutoStartFixedMode(IMavlinkService svc)
+    {
+        if (_config.IsEnabledRtk == false || _config.IsAutoStartFixedMode == false)
+        {
+            return;
+        }
+
+        var position = new GeoPoint(
+            _config.FixedModeLat,
+            _config.FixedModeLon,
+            _config.FixedModeAlt
+        );
+        try
+        {
+            svc.StatusText.Info($"Auto start GNSS Fixed Mode ({position})");
+            await Client.SetFixedBaseMode(position, _config.FixedModeAccuracy, DisposeCancel)
+                .ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            svc.StatusText.Error("GNSS Fixed Mode auto start error");
+            svc.StatusText.Error(e.Message);
         }
     }
 

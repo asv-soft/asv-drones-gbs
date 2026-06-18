@@ -6,7 +6,7 @@ namespace Asv.Drones.Gbs;
 public class RtkDeviceOptions
 {
     public const string Section = "Rtk";
-    public bool IsEnabled { get; set; } = false;
+    public bool IsEnabled { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether this GNSS device is allowed to act as an RTK base.
@@ -16,6 +16,35 @@ public class RtkDeviceOptions
     /// RTCMv3 output and RTK mode commands are not enabled.
     /// </remarks>
     public bool IsEnabledRtk { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether fixed RTK base mode should be started automatically.
+    /// </summary>
+    /// <remarks>
+    /// The mode is started after a GNSS device with UBX microservice is initialized.
+    /// Requires <see cref="IsEnabledRtk"/> to be enabled.
+    /// </remarks>
+    public bool IsAutoStartFixedMode { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the fixed base latitude in degrees.
+    /// </summary>
+    public double FixedModeLat { get; set; } = 0;
+
+    /// <summary>
+    /// Gets or sets the fixed base longitude in degrees.
+    /// </summary>
+    public double FixedModeLon { get; set; } = 0;
+
+    /// <summary>
+    /// Gets or sets the fixed base altitude in meters.
+    /// </summary>
+    public double FixedModeAlt { get; set; } = 0;
+
+    /// <summary>
+    /// Gets or sets the fixed base position accuracy in meters.
+    /// </summary>
+    public float FixedModeAccuracy { get; set; } = 0.3f;
 
     /// <summary>
     /// Gets or sets the connection string for the serial port.

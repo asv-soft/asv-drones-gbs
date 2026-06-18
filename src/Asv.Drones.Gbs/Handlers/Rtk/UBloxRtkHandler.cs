@@ -29,6 +29,75 @@ public static class UBloxRtkHandlerMixin
     }
 }
 
+static class RtkFixedModeValidator
+{
+    public const float MinAccuracyMeters = 0.001f;
+    public const float MaxAccuracyMeters = 100.0f;
+
+    public static bool TryValidate(
+        GeoPoint position,
+        float accuracy,
+        out string error
+    )
+    {
+        if (IsFinite(position.Latitude) == false)
+        {
+            error = "Fixed Mode latitude is not finite.";
+            return false;
+        }
+
+        if (IsFinite(position.Longitude) == false)
+        {
+            error = "Fixed Mode longitude is not finite.";
+            return false;
+        }
+
+        if (IsFinite(position.Altitude) == false)
+        {
+            error = "Fixed Mode altitude is not finite.";
+            return false;
+        }
+
+        if (position.Latitude is < -90.0 or > 90.0)
+        {
+            error = $"Fixed Mode latitude is out of range: {position.Latitude}.";
+            return false;
+        }
+
+        if (position.Longitude is < -180.0 or > 180.0)
+        {
+            error = $"Fixed Mode longitude is out of range: {position.Longitude}.";
+            return false;
+        }
+
+        if (Math.Abs(position.Latitude) < double.Epsilon
+            && Math.Abs(position.Longitude) < double.Epsilon)
+        {
+            error = "Fixed Mode coordinates are not configured: latitude and longitude are zero.";
+            return false;
+        }
+
+        if (IsFinite(accuracy) == false)
+        {
+            error = "Fixed Mode accuracy is not finite.";
+            return false;
+        }
+
+        if (accuracy is < MinAccuracyMeters or > MaxAccuracyMeters)
+        {
+            error =
+                $"Fixed Mode accuracy must be between {MinAccuracyMeters} and {MaxAccuracyMeters} meters.";
+            return false;
+        }
+
+        error = string.Empty;
+        return true;
+    }
+
+    private static bool IsFinite(double value) => double.IsNaN(value) == false
+        && double.IsInfinity(value) == false;
+}
+
 public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
 {
     private readonly ILogger<UBloxRtkHandler> _logger;
@@ -79,6 +148,9 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
     /// Indicates whether the system is currently sending RTCM data.
     /// </summary>
     private bool _areRtcmSending;
+    private long _lastRtcmMessageTickMs;
+    private const long RtcmOutputStaleTimeoutMs = 10_000;
+    private static readonly TimeSpan RtcmSendTimeout = TimeSpan.FromSeconds(2);
 
     private UbxRtkDevice? _device;
     private readonly IProtocolRouter _router;
@@ -236,7 +308,7 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
     /// Sends a RTCMv3 message.
     /// </summary>
     /// <param name="msg">The RTCMv3 raw message to be sent.</param>
-    private void SendRtcm(RtcmV3MessageBase msg)
+    private async Task SendRtcm(RtcmV3MessageBase msg)
     {
         if (_config.IsEnabledRtk == false)
         {
@@ -251,13 +323,21 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
         try
         {
             var size = msg.GetByteSize();
+            Interlocked.Exchange(ref _lastRtcmMessageTickMs, Environment.TickCount64);
             Interlocked.Add(ref _rxBytes, size);
             var rate = _rxByteRate.Calculate(_rxBytes);
             _svc.Gbs.DgpsRate.Value = (ushort)rate;
             var buffer = new byte[size];
             var span = new Span<byte>(buffer);
             msg.Serialize(ref span);
-            _svc.Gbs.SendRtcmData(buffer, size, CancellationToken.None).Wait();
+            await _svc
+                .Gbs.SendRtcmData(buffer, size, DisposeCancel)
+                .WaitAsync(RtcmSendTimeout, DisposeCancel)
+                .ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            _logger.ZLogError($"Timeout sending Rtcm after {RtcmSendTimeout.TotalSeconds:F0} sec");
         }
         catch (Exception ex)
         {
@@ -281,7 +361,7 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
             return;
         }
 
-        if (_areRtcmSending && force == false)
+        if (_areRtcmSending && force == false && IsRtcmOutputStale() == false)
         {
             return;
         }
@@ -291,8 +371,20 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
             return;
         }
 
+        if (_areRtcmSending && IsRtcmOutputStale())
+        {
+            _logger.ZLogWarning($"RTCM output is stale. Reconfigure RTCM output.");
+        }
+
         await _device.SetRtcmOutput(true, cancel).ConfigureAwait(false);
         _areRtcmSending = true;
+    }
+
+    private bool IsRtcmOutputStale()
+    {
+        var lastRtcmMessageTickMs = Interlocked.Read(ref _lastRtcmMessageTickMs);
+        return lastRtcmMessageTickMs == 0
+            || Environment.TickCount64 - lastRtcmMessageTickMs > RtcmOutputStaleTimeoutMs;
     }
 
     /// <summary>
@@ -300,9 +392,9 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
     /// </summary>
     /// <param name="cancel">The cancellation token to cancel the async operation.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    private async Task RtcmOff(CancellationToken cancel)
+    private async Task RtcmOff(CancellationToken cancel, bool force = false)
     {
-        if (!_areRtcmSending)
+        if (!_areRtcmSending && force == false)
         {
             return;
         }
@@ -313,6 +405,7 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
         }
 
         await _device.SetRtcmOutput(false, cancel).ConfigureAwait(false);
+        Interlocked.Exchange(ref _lastRtcmMessageTickMs, 0);
         _areRtcmSending = false;
     }
 
@@ -356,6 +449,9 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
             var cfgTMode3 = await _device?.Client.GetCfgTMode3(DisposeCancel)!;
             if (cfgTMode3 != null)
             {
+                var svIn = _svIn.Value;
+                var accuracy = svIn?.Accuracy ?? 0;
+                var observations = svIn?.Observations ?? 0;
                 switch (cfgTMode3.Mode)
                 {
                     case TMode3Enum.Disabled:
@@ -383,14 +479,15 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
                     case TMode3Enum.FixedMode:
                         _svc.Gbs.CustomMode.Value = AsvGbsCustomMode.AsvGbsCustomModeFixed;
                         _svc.Gbs.Position.Value = cfgTMode3.Location ?? position;
+                        accuracy = cfgTMode3.FixedPosition3DAccuracy;
                         await RtcmOn(DisposeCancel).ConfigureAwait(false);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
 
-                _svc.Gbs.AccuracyMeter.Value = _svIn.Value.Accuracy;
-                _svc.Gbs.ObservationSec.Value = (ushort)_svIn.Value.Observations;
+                _svc.Gbs.AccuracyMeter.Value = accuracy;
+                _svc.Gbs.ObservationSec.Value = (ushort)observations;
             }
             else
             {
@@ -485,13 +582,15 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
                 return MavResult.MavResultFailed;
             }
 
+            await RtcmOff(cancel, true).ConfigureAwait(false);
             await _device
                 .Client.Push(
                     new UbxCfgTMode3 { Mode = TMode3Enum.Disabled, IsGivenInLLA = false },
                     cancel: cancel
                 )
                 .ConfigureAwait(false);
-            await RtcmOff(cancel).ConfigureAwait(false);
+            _svc.Gbs.CustomMode.Value = AsvGbsCustomMode.AsvGbsCustomModeIdle;
+            _svc.Gbs.DgpsRate.Value = 0;
             await _device.Client.RebootReceiver(cancel).ConfigureAwait(false);
             return MavResult.MavResultAccepted;
         }
@@ -602,8 +701,21 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
                 return MavResult.MavResultFailed;
             }
 
+            if (RtkFixedModeValidator.TryValidate(geoPoint, accuracy, out var validationError) == false)
+            {
+                _logger.ZLogError($"Unable to set Fixed Mode. {validationError}");
+                _svc.StatusText.Error(validationError);
+                return MavResult.MavResultDenied;
+            }
+
             _svc.StatusText.Info($"Set GNSS Fixed Mode ({geoPoint})");
             await _device.Client.SetFixedBaseMode(geoPoint, accuracy, cancel).ConfigureAwait(false);
+            if (await _device.WaitForFixedMode(cancel).ConfigureAwait(false) == false)
+            {
+                _svc.StatusText.Error("GNSS Fixed Mode error: TMODE3 was not applied.");
+                return MavResult.MavResultFailed;
+            }
+
             await RtcmOn(cancel, true).ConfigureAwait(false);
             return MavResult.MavResultAccepted;
         }
@@ -676,7 +788,8 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
 
         if (_device == null || _device.IsInit == false)
         {
-            _svc.StatusText.Warning("Temporarily rejected: now is busy");
+            EndCall();
+            _svc.StatusText.Warning("Temporarily rejected: GNSS device is not initialized");
             return false;
         }
 
@@ -703,10 +816,13 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
             _navPvtSubscription = device.NavPvt.Subscribe(msg => _pvt.Value = msg);
             if (_config.IsEnabledRtk)
             {
-                _rtcmV3Subscription = device.RtcmV3Message.Subscribe(SendRtcm);
+                _rtcmV3Subscription = device.RtcmV3Message.Subscribe(msg =>
+                    SendRtcm(msg).SafeFireAndForget()
+                );
             }
             await device.Init(_svc, _router).ConfigureAwait(false);
             _areRtcmSending = device.AreRtcmSending;
+
             if (_config.IsEnabledRtk == false)
             {
                 _svc.Gbs.DgpsRate.Value = 0;
@@ -832,8 +948,8 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
 
             svc.Gbs.CustomMode.Value = AsvGbsCustomMode.AsvGbsCustomModeIdle;
 
-            IsInit = true;
             await AutoStartFixedMode(svc).ConfigureAwait(false);
+            IsInit = true;
             _initUbxSub?.Dispose();
             _initUbxSub = null;
         }
@@ -863,17 +979,57 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
             _config.FixedModeLon,
             _config.FixedModeAlt
         );
+        if (
+            RtkFixedModeValidator.TryValidate(
+                position,
+                _config.FixedModeAccuracy,
+                out var validationError
+            ) == false
+        )
+        {
+            svc.StatusText.Error($"GNSS Fixed Mode auto start skipped. {validationError}");
+            return;
+        }
+
         try
         {
             svc.StatusText.Info($"Auto start GNSS Fixed Mode ({position})");
             await Client.SetFixedBaseMode(position, _config.FixedModeAccuracy, DisposeCancel)
                 .ConfigureAwait(false);
+            if (await WaitForFixedMode(DisposeCancel).ConfigureAwait(false) == false)
+            {
+                svc.StatusText.Error("GNSS Fixed Mode auto start error: TMODE3 was not applied.");
+                return;
+            }
+
+            await SetRtcmOutput(true, DisposeCancel).ConfigureAwait(false);
+            svc.Gbs.CustomMode.Value = AsvGbsCustomMode.AsvGbsCustomModeFixed;
+            svc.Gbs.Position.Value = position;
+            svc.Gbs.AccuracyMeter.Value = _config.FixedModeAccuracy;
+            svc.Gbs.ObservationSec.Value = 0;
         }
         catch (Exception e)
         {
             svc.StatusText.Error("GNSS Fixed Mode auto start error");
             svc.StatusText.Error(e.Message);
         }
+    }
+
+    public async Task<bool> WaitForFixedMode(CancellationToken cancel)
+    {
+        for (var i = 0; i < 10; i++)
+        {
+            cancel.ThrowIfCancellationRequested();
+            var mode = await Client.GetCfgTMode3(cancel).ConfigureAwait(false);
+            if (mode?.Mode == TMode3Enum.FixedMode)
+            {
+                return true;
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(500), cancel).ConfigureAwait(false);
+        }
+
+        return false;
     }
 
     public async Task SetRtcmOutput(bool enabled, CancellationToken cancel)

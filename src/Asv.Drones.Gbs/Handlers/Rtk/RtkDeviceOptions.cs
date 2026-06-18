@@ -29,11 +29,17 @@ public class RtkDeviceOptions
     /// <summary>
     /// Gets or sets the fixed base latitude in degrees.
     /// </summary>
+    /// <remarks>
+    /// Auto-start fixed mode is skipped when latitude and longitude are both zero.
+    /// </remarks>
     public double FixedModeLat { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the fixed base longitude in degrees.
     /// </summary>
+    /// <remarks>
+    /// Auto-start fixed mode is skipped when latitude and longitude are both zero.
+    /// </remarks>
     public double FixedModeLon { get; set; } = 0;
 
     /// <summary>
@@ -44,6 +50,9 @@ public class RtkDeviceOptions
     /// <summary>
     /// Gets or sets the fixed base position accuracy in meters.
     /// </summary>
+    /// <remarks>
+    /// Must be between 0.001 and 100 meters.
+    /// </remarks>
     public float FixedModeAccuracy { get; set; } = 0.3f;
 
     /// <summary>

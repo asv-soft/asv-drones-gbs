@@ -878,20 +878,25 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
     {
         if (_config.IsEnabledRtk)
         {
-            await Client.SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0x05, 5)
+            await Client
+                .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0x05, 5)
                 .ConfigureAwait(false); // 1005 - 5s
-            await Client.SetupRtcmMSM4Rate(_config.MessageRateHz, DisposeCancel)
+            await Client
+                .SetupRtcmMSM4Rate(_config.MessageRateHz, DisposeCancel)
                 .ConfigureAwait(false);
-            await Client.SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0xE6, 5)
+            await Client
+                .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0xE6, 5)
                 .ConfigureAwait(false); // 1230 - 5s
             AreRtcmSending = true;
             return;
         }
 
-        await Client.SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0x05, 0)
+        await Client
+            .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0x05, 0)
             .ConfigureAwait(false);
         await Client.SetupRtcmMSM4Rate(0, DisposeCancel).ConfigureAwait(false);
-        await Client.SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0xE6, 0)
+        await Client
+            .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0xE6, 0)
             .ConfigureAwait(false);
         AreRtcmSending = false;
     }

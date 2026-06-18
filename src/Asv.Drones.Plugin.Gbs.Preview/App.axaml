@@ -7,7 +7,7 @@
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Styles>
-        <StyleInclude Source="avares://Asv.Avalonia/Styling/Theme.axaml" />
+        <StyleInclude Source="avares://Asv.Avalonia/Theme.axaml" />
         <StyleInclude Source="avares://Asv.Avalonia.GeoMap/Theme.axaml" />
     </Application.Styles>
 </Application>

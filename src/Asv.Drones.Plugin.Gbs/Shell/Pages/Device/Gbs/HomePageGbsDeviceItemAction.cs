@@ -2,11 +2,12 @@ using Asv.Avalonia;
 using Asv.Avalonia.IO;
 using Asv.IO;
 using Asv.Mavlink;
-using Microsoft.Extensions.Logging;
+using Asv.Modeling;
+using R3;
 
 namespace Asv.Drones.Plugin.Gbs;
 
-public class HomePageGbsDeviceItemAction(ILoggerFactory loggerFactory) : HomePageDeviceItemAction
+public class HomePageGbsDeviceItemAction : HomePageDeviceItemAction
 {
     protected override IActionViewModel? TryCreateAction(
         IClientDevice device,
@@ -18,13 +19,22 @@ public class HomePageGbsDeviceItemAction(ILoggerFactory loggerFactory) : HomePag
             return null;
         }
 
-        return new ActionViewModel(GbsDevicePageViewModel.PageId, loggerFactory)
+        return new ActionViewModel(GbsDevicePageViewModel.PageId)
         {
-            Icon = OpenGbsPageCommand.StaticInfo.Icon,
+            Icon = GbsPluginMixin.DefaultIcon,
             Header = "Gbs control",
             Description = "Ground base station device control",
-            Command = new BindableAsyncCommand(OpenGbsPageCommand.Id, context),
-            CommandParameter = DevicePageViewModelMixin.CreateOpenPageArgs(device.Id),
+            Command = new ReactiveCommand(
+                async (_, _) =>
+                    await context.GoTo(
+                        new NavPath(
+                            new NavId(
+                                GbsDevicePageViewModel.PageId,
+                                DevicePageViewModelMixin.CreateOpenPageArgs(device.Id)
+                            )
+                        )
+                    )
+            ),
         };
     }
 }

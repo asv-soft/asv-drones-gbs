@@ -56,6 +56,10 @@
         <AutoGen>True</AutoGen>
         <DependentUpon>RS.resx</DependentUpon>
       </Compile>
+      <Compile Update="Shell\Pages\FlightMode\Widgets\Sections\SatelliteCount\GbsSatelliteCountSectionView.axaml.cs">
+        <DependentUpon>GbsSatelliteCountSectionView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="Roslynator.Analyzers" Version="$(RoslynAnalyzersVersion)">

@@ -12,12 +12,12 @@ public sealed class GbsFlightWidgetTelemetrySectionExtension(IServiceProvider se
         var device = context.Device ?? throw new NullReferenceException();
         string[] defaultItemIds =
         [
-            BaseStationModeGbsTelemetryViewModel.RttId,
-            AccuracyGbsTelemetryViewModel.RttId,
-            ObservationGbsTelemetryViewModel.RttId,
-            DGpsRateGbsTelemetryViewModel.RttId,
-            LinkQualityGbsTelemetryViewModel.RttId,
-            VisibleSatellitesGbsTelemetryViewModel.RttId,
+            GbsBaseStationModeTelemetryFactory.Id,
+            GbsAccuracyTelemetryFactory.Id,
+            GbsObservationTelemetryFactory.Id,
+            GbsDGpsRateTelemetryFactory.Id,
+            GbsLinkQualityTelemetryFactory.Id,
+            GbsVisibleSatellitesTelemetryFactory.Id,
         ];
 
         var vm = services.CreateViewModel<ITelemetrySection, TelemetrySectionArgs>(

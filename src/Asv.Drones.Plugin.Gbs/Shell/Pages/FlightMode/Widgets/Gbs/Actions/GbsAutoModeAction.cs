@@ -27,12 +27,10 @@ public sealed class GbsAutoModeAction<TWidget>(
             return null;
         }
 
-        var item = new MenuItem(ActionId, "Enable Auto")
-        {
-            Icon = ActionIcon,
-            Description = "Start GBS automatic RTK mode",
-            Order = 10,
-        };
+        var item = CreateMenuItem("Enable Auto");
+        item.Icon = ActionIcon;
+        item.Description = "Start GBS automatic RTK mode";
+        item.Order = 10;
 
         var canExecute = CreateModeCanExecute(
             gbs,
@@ -71,6 +69,6 @@ public sealed class GbsAutoModeAction<TWidget>(
         var cfg = viewModel.GetResult();
         configuration.Set(cfg);
 
-        await gbs.StartAutoMode((float)cfg.Observation, (float)cfg.Accuracy, cancel);
+        await gbs.StartAutoMode((float)cfg.Accuracy, (float)cfg.Observation, cancel);
     }
 }

@@ -28,12 +28,10 @@ public sealed class GbsFixedModeAction<TWidget>(
             return null;
         }
 
-        var item = new MenuItem(ActionId, "Enable Fixed")
-        {
-            Icon = ActionIcon,
-            Description = "Start GBS fixed RTK mode",
-            Order = 20,
-        };
+        var item = CreateMenuItem("Enable Fixed");
+        item.Icon = ActionIcon;
+        item.Description = "Start GBS fixed RTK mode";
+        item.Order = 20;
 
         var canExecute = CreateModeCanExecute(
             gbs,

@@ -22,7 +22,6 @@ public static class CoreMixin
         public void RegisterDefault()
         {
             builder.Core.RegisterServices();
-            builder.Core.RegisterTelemetry();
         }
 
         public GbsPluginMixin.Builder GbsPlugin => builder;

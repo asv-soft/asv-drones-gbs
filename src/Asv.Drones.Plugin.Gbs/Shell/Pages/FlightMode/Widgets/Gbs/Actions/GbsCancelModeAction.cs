@@ -24,12 +24,10 @@ public sealed class GbsCancelModeAction<TWidget>()
             return null;
         }
 
-        var item = new MenuItem(ActionId, "Cancel")
-        {
-            Icon = ActionIcon,
-            Description = "Cancel GBS mode transition",
-            Order = 40,
-        };
+        var item = CreateMenuItem("Cancel");
+        item.Icon = ActionIcon;
+        item.Description = "Cancel GBS mode transition";
+        item.Order = 40;
 
         var canExecute = CreateModeCanExecute(
             gbs,

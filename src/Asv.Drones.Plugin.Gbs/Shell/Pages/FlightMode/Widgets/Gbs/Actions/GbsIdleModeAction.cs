@@ -24,12 +24,10 @@ public sealed class GbsIdleModeAction<TWidget>()
             return null;
         }
 
-        var item = new MenuItem(ActionId, "Disable RTK")
-        {
-            Icon = ActionIcon,
-            Description = "Switch GBS to idle mode",
-            Order = 30,
-        };
+        var item = CreateMenuItem("Disable RTK");
+        item.Icon = ActionIcon;
+        item.Description = "Switch GBS to idle mode";
+        item.Order = 30;
 
         var canExecute = CreateModeCanExecute(
             gbs,

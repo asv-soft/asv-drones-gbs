@@ -34,11 +34,7 @@ static class RtkFixedModeValidator
     public const float MinAccuracyMeters = 0.001f;
     public const float MaxAccuracyMeters = 100.0f;
 
-    public static bool TryValidate(
-        GeoPoint position,
-        float accuracy,
-        out string error
-    )
+    public static bool TryValidate(GeoPoint position, float accuracy, out string error)
     {
         if (IsFinite(position.Latitude) == false)
         {
@@ -70,8 +66,10 @@ static class RtkFixedModeValidator
             return false;
         }
 
-        if (Math.Abs(position.Latitude) < double.Epsilon
-            && Math.Abs(position.Longitude) < double.Epsilon)
+        if (
+            Math.Abs(position.Latitude) < double.Epsilon
+            && Math.Abs(position.Longitude) < double.Epsilon
+        )
         {
             error = "Fixed Mode coordinates are not configured: latitude and longitude are zero.";
             return false;
@@ -94,8 +92,8 @@ static class RtkFixedModeValidator
         return true;
     }
 
-    private static bool IsFinite(double value) => double.IsNaN(value) == false
-        && double.IsInfinity(value) == false;
+    private static bool IsFinite(double value) =>
+        double.IsNaN(value) == false && double.IsInfinity(value) == false;
 }
 
 public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
@@ -701,7 +699,10 @@ public class UBloxRtkHandler : AsyncDisposableWithCancel, IHostedService
                 return MavResult.MavResultFailed;
             }
 
-            if (RtkFixedModeValidator.TryValidate(geoPoint, accuracy, out var validationError) == false)
+            if (
+                RtkFixedModeValidator.TryValidate(geoPoint, accuracy, out var validationError)
+                == false
+            )
             {
                 _logger.ZLogError($"Unable to set Fixed Mode. {validationError}");
                 _svc.StatusText.Error(validationError);
@@ -994,7 +995,8 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
         try
         {
             svc.StatusText.Info($"Auto start GNSS Fixed Mode ({position})");
-            await Client.SetFixedBaseMode(position, _config.FixedModeAccuracy, DisposeCancel)
+            await Client
+                .SetFixedBaseMode(position, _config.FixedModeAccuracy, DisposeCancel)
                 .ConfigureAwait(false);
             if (await WaitForFixedMode(DisposeCancel).ConfigureAwait(false) == false)
             {
@@ -1039,9 +1041,7 @@ sealed class UbxRtkDevice : AsyncDisposableWithCancel
             await Client
                 .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0x05, 5)
                 .ConfigureAwait(false); // 1005 - 5s
-            await Client
-                .SetupRtcmMSM4Rate(_config.MessageRateHz, cancel)
-                .ConfigureAwait(false);
+            await Client.SetupRtcmMSM4Rate(_config.MessageRateHz, cancel).ConfigureAwait(false);
             await Client
                 .SetMessageRate((byte)UbxProtocol.ClassIDs.RTCM3, 0xE6, 5)
                 .ConfigureAwait(false); // 1230 - 5s

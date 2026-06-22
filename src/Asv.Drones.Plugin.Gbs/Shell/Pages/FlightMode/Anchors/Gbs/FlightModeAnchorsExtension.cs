@@ -34,6 +34,6 @@ public class FlightModeAnchorsExtension(IDeviceManager conn, IExtensionService e
 
     private static bool RemoveAnchor(IClientDevice dev, GbsAnchor anchor)
     {
-        return anchor.DeviceId == dev.Id;
+        return anchor.Device.Id == dev.Id;
     }
 }

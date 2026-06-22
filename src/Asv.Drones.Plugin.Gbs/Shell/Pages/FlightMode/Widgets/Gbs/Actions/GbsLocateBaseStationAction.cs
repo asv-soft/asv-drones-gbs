@@ -25,12 +25,10 @@ public sealed class GbsLocateBaseStationAction<TWidget>()
             return null;
         }
 
-        var item = new MenuItem(ActionId, "Locate GBS")
-        {
-            Icon = ActionIcon,
-            Description = "Move map to this GBS",
-            Order = 90,
-        };
+        var item = CreateMenuItem("Locate GBS");
+        item.Icon = ActionIcon;
+        item.Description = "Move map to this GBS";
+        item.Order = 90;
         item.Command = CreateCommand(
                 item,
                 _ =>

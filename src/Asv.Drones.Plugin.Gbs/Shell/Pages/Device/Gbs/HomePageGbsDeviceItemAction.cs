@@ -9,6 +9,10 @@ namespace Asv.Drones.Plugin.Gbs;
 
 public class HomePageGbsDeviceItemAction : HomePageDeviceItemAction
 {
+    public const string StaticId = "ext.home.device-action.gbs";
+
+    public override string Id => StaticId;
+
     protected override IActionViewModel? TryCreateAction(
         IClientDevice device,
         HomePageDeviceItem context

@@ -2,14 +2,15 @@ using Asv.Avalonia;
 using Asv.Drones.Api;
 using Asv.IO;
 using Asv.Mavlink;
+using Asv.Mavlink.AsvGbs;
 using Material.Icons;
 using R3;
 
 namespace Asv.Drones.Plugin.Gbs;
 
-public sealed class GbsVisibleSatellitesTelemetryFactory : ITelemetryItemFactory
+public sealed class GbsModeTelemetryFactory : ITelemetryItemFactory
 {
-    public const string Id = "gbs-visible-satellites";
+    public const string Id = "gbs-mode";
 
     public string ItemId => Id;
 
@@ -20,25 +21,27 @@ public sealed class GbsVisibleSatellitesTelemetryFactory : ITelemetryItemFactory
     {
         ArgumentNullException.ThrowIfNull(device);
 
-        var satellites = device
+        var mode = device
             .GetRequiredMicroservice<IAsvGbsExClient>()
-            .AllSatellites.DistinctUntilChanged()
+            .CustomMode.DistinctUntilChanged()
             .ThrottleLast(TimeSpan.FromMilliseconds(200))
-            .Select(value => value)
-            .Prepend((byte)0)
+            .Select(ModeToString)
+            .Prepend(string.Empty)
             .ObserveOnUIThreadDispatcher();
 
-        return new TelemetryViewModel<byte>(
+        return new TelemetryViewModel<string>(
             Id,
-            satellites,
-            static (tile, changes) => tile.Text = changes.ToString()
+            mode,
+            static (tile, changes) => tile.Text = changes
         )
         {
             Density = TileDensity.Inline,
-            Header = "All Satellites",
-            ShortHeader = "Sat",
-            Units = "sats",
-            Icon = MaterialIconKind.SatelliteVariant,
+            Header = "Mode",
+            ShortHeader = "Mode",
+            Icon = MaterialIconKind.StateMachine,
         };
     }
+
+    private static string ModeToString(AsvGbsCustomMode mode) =>
+        mode.ToString().Replace(nameof(AsvGbsCustomMode), string.Empty);
 }

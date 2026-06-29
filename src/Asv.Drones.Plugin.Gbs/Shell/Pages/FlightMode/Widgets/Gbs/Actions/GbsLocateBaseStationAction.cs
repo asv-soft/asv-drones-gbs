@@ -8,7 +8,7 @@ using R3;
 namespace Asv.Drones.Plugin.Gbs;
 
 public sealed class GbsLocateBaseStationAction<TWidget>()
-    : GbsFlightWidgetActionBase<TWidget>("gbs-locate-base-station")
+    : GbsFlightWidgetActionBase<TWidget>("locate-base-station")
     where TWidget : class, IGbsFlightWidget<GbsClientDevice>
 {
     public const MaterialIconKind ActionIcon = MaterialIconKind.Crosshairs;

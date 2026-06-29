@@ -10,9 +10,11 @@ using R3;
 namespace Asv.Drones.Plugin.Gbs;
 
 public abstract class GbsFlightWidgetActionBase<TWidget>(string id)
-    : FlightWidgetAction<TWidget>(id)
+    : FlightWidgetAction<TWidget>($"gbs.{id}")
     where TWidget : class, IGbsFlightWidget<GbsClientDevice>
 {
+    public override string Id { get; } = $"ext.flight-widget.action.gbs.{id}";
+
     protected static IAsvGbsExClient? TryGetGbsClient(TWidget widget) =>
         widget.Device.GetMicroservice<IAsvGbsExClient>();
 

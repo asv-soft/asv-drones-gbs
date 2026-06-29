@@ -8,6 +8,10 @@ namespace Asv.Drones.Plugin.Gbs;
 public sealed class GbsFlightWidgetSatelliteCountSectionExtension(IServiceProvider services)
     : IExtensionFor<IGbsFlightWidget>
 {
+    public const string StaticId = "ext.flight-widget.satellite-count.gbs";
+
+    public string Id => StaticId;
+
     public void Extend(IGbsFlightWidget context, CompositeDisposable contextDispose)
     {
         var gbs = context.Device.GetMicroservice<IAsvGbsExClient>();

@@ -41,15 +41,11 @@ public static class SectionsMixin
             >();
             builder.FlightMode.Pages.Shell.GbsPlugin.AppBuilder.Services.AddSingleton<
                 ITelemetryItemFactory,
-                GbsBaseStationModeTelemetryFactory
+                GbsModeTelemetryFactory
             >();
             builder.FlightMode.Pages.Shell.GbsPlugin.AppBuilder.Services.AddSingleton<
                 ITelemetryItemFactory,
                 GbsDGpsRateTelemetryFactory
-            >();
-            builder.FlightMode.Pages.Shell.GbsPlugin.AppBuilder.Services.AddSingleton<
-                ITelemetryItemFactory,
-                GbsLinkQualityTelemetryFactory
             >();
             builder.FlightMode.Pages.Shell.GbsPlugin.AppBuilder.Services.AddSingleton<
                 ITelemetryItemFactory,

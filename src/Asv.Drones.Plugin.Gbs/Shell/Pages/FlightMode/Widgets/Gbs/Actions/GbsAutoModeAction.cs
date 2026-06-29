@@ -11,7 +11,7 @@ namespace Asv.Drones.Plugin.Gbs;
 public sealed class GbsAutoModeAction<TWidget>(
     IUnitService unitService,
     IConfiguration configuration
-) : GbsFlightWidgetActionBase<TWidget>("gbs-auto-mode")
+) : GbsFlightWidgetActionBase<TWidget>("auto-mode")
     where TWidget : class, IGbsFlightWidget<GbsClientDevice>
 {
     public const MaterialIconKind ActionIcon = MaterialIconKind.Automatic;

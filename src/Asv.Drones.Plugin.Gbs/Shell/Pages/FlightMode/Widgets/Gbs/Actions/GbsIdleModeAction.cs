@@ -7,8 +7,7 @@ using R3;
 
 namespace Asv.Drones.Plugin.Gbs;
 
-public sealed class GbsIdleModeAction<TWidget>()
-    : GbsFlightWidgetActionBase<TWidget>("gbs-idle-mode")
+public sealed class GbsIdleModeAction<TWidget>() : GbsFlightWidgetActionBase<TWidget>("idle-mode")
     where TWidget : class, IGbsFlightWidget<GbsClientDevice>
 {
     public const MaterialIconKind ActionIcon = MaterialIconKind.Radio;

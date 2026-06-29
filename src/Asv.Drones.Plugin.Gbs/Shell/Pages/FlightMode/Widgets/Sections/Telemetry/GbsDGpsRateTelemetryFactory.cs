@@ -3,24 +3,20 @@ using Asv.Drones.Api;
 using Asv.IO;
 using Asv.Mavlink;
 using Material.Icons;
-using Microsoft.Extensions.Logging;
 using R3;
 
 namespace Asv.Drones.Plugin.Gbs;
 
-public sealed class GbsDGpsRateTelemetryFactory(ILoggerFactory loggerFactory)
-    : ITelemetryItemFactory
+public sealed class GbsDGpsRateTelemetryFactory : ITelemetryItemFactory
 {
     public const string Id = "gbs-dgps-rate";
-    private const AsvColorKind DefaultStatusColor = AsvColorKind.Info5;
-    private const ushort PreviewRate = 30;
 
     public string ItemId => Id;
 
     public bool CanCreate(in IClientDevice device) =>
         device.GetMicroservice<IAsvGbsExClient>() is not null;
 
-    public IRttBoxViewModel Create(in IClientDevice device)
+    public ITileViewModel Create(in IClientDevice device)
     {
         ArgumentNullException.ThrowIfNull(device);
 
@@ -28,32 +24,22 @@ public sealed class GbsDGpsRateTelemetryFactory(ILoggerFactory loggerFactory)
             .GetRequiredMicroservice<IAsvGbsExClient>()
             .DgpsRate.DistinctUntilChanged()
             .ThrottleLast(TimeSpan.FromMilliseconds(200))
-            .Prepend((ushort)0);
+            .Prepend((ushort)0)
+            .ObserveOnUIThreadDispatcher();
 
-        return InternalCreate(rate);
-    }
-
-    public IRttBoxViewModel CreatePreview()
-    {
-        var rate = Observable.Return(PreviewRate).Concat(Observable.Never<ushort>());
-
-        return InternalCreate(rate);
-    }
-
-    private IRttBoxViewModel InternalCreate(Observable<ushort> rate)
-    {
-        return new KeyValueRttBoxViewModel<ushort>(Id, loggerFactory, rate, null)
+        return new TelemetryViewModel<ushort>(Id, rate, Update)
         {
+            Density = TileDensity.Inline,
             Header = "DGpsRate",
+            ShortHeader = "DGps",
             Icon = MaterialIconKind.Frequency,
-            UpdateAction = (model, changes) =>
-            {
-                model[0, "DGpsRate", null].ValueString = BytesRate.ConvertToStringWithUnits(
-                    changes
-                );
-            },
-            Status = DefaultStatusColor,
         };
+
+        static void Update(TelemetryViewModel<ushort> tile, ushort changes)
+        {
+            tile.Text = BytesRate.ConvertToString(changes);
+            tile.Units = BytesRate.GetUnit(changes);
+        }
     }
 }
 

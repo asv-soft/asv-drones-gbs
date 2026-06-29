@@ -8,7 +8,7 @@ using R3;
 namespace Asv.Drones.Plugin.Gbs;
 
 public sealed class GbsCancelModeAction<TWidget>()
-    : GbsFlightWidgetActionBase<TWidget>("gbs-cancel-mode")
+    : GbsFlightWidgetActionBase<TWidget>("cancel-mode")
     where TWidget : class, IGbsFlightWidget<GbsClientDevice>
 {
     public const MaterialIconKind ActionIcon = MaterialIconKind.Radio;

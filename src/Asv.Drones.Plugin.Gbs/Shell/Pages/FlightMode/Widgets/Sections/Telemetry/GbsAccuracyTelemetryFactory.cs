@@ -1,28 +1,22 @@
 using Asv.Avalonia;
-using Asv.Common;
 using Asv.Drones.Api;
 using Asv.IO;
 using Asv.Mavlink;
 using Material.Icons;
-using Microsoft.Extensions.Logging;
 using R3;
 
 namespace Asv.Drones.Plugin.Gbs;
 
-public sealed class GbsAccuracyTelemetryFactory(
-    IUnitService unitService,
-    ILoggerFactory loggerFactory
-) : ITelemetryItemFactory
+public sealed class GbsAccuracyTelemetryFactory(IUnitService unitService) : ITelemetryItemFactory
 {
     public const string Id = "gbs-accuracy";
-    private const AsvColorKind DefaultStatusColor = AsvColorKind.Info5;
 
     public string ItemId => Id;
 
     public bool CanCreate(in IClientDevice device) =>
         device.GetMicroservice<IAsvGbsExClient>() is not null;
 
-    public IRttBoxViewModel Create(in IClientDevice device)
+    public ITileViewModel Create(in IClientDevice device)
     {
         ArgumentNullException.ThrowIfNull(device);
 
@@ -30,33 +24,32 @@ public sealed class GbsAccuracyTelemetryFactory(
             .GetRequiredMicroservice<IAsvGbsExClient>()
             .AccuracyMeter.DistinctUntilChanged()
             .ThrottleLast(TimeSpan.FromMilliseconds(200))
-            .Prepend(double.NaN);
+            .Prepend(double.NaN)
+            .CombineLatest(
+                unitService.Units[DistanceUnit.Id].CurrentUnitItem,
+                (value, unit) => new GbsAccuracyTelemetryData(value, unit)
+            )
+            .ObserveOnUIThreadDispatcher();
 
-        return InternalCreate(accuracy);
-    }
+        return new TelemetryViewModel<GbsAccuracyTelemetryData>(Id, accuracy, Update)
+        {
+            Density = TileDensity.Inline,
+            Header = "Accuracy",
+            ShortHeader = "Acc",
+            Icon = MaterialIconKind.CrosshairsGps,
+        };
 
-    public IRttBoxViewModel CreatePreview()
-    {
-        var accuracy = Observable.Return(5d).Concat(Observable.Never<double>());
-
-        return InternalCreate(accuracy);
-    }
-
-    private IRttBoxViewModel InternalCreate(Observable<double> accuracy)
-    {
-        return new SplitDigitRttBoxViewModel(
-            Id,
-            loggerFactory,
-            unitService,
-            DistanceUnit.Id,
-            accuracy,
-            null
+        static void Update(
+            TelemetryViewModel<GbsAccuracyTelemetryData> tile,
+            GbsAccuracyTelemetryData changes
         )
         {
-            Header = "Accuracy",
-            Icon = MaterialIconKind.CrosshairsGps,
-            Status = DefaultStatusColor,
-            FormatString = "F2",
-        };
+            tile.Text = changes.Unit.PrintFromSi(changes.Value, "F2");
+            tile.Units = changes.Unit.Symbol;
+        }
     }
 }
+
+#pragma warning disable SA1313
+public readonly record struct GbsAccuracyTelemetryData(double Value, IUnitItem Unit);
+#pragma warning restore SA1313

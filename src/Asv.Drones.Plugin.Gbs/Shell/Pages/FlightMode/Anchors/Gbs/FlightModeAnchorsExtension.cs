@@ -12,6 +12,10 @@ namespace Asv.Drones.Plugin.Gbs;
 public class FlightModeAnchorsExtension(IDeviceManager conn, IExtensionService ext)
     : IExtensionFor<IFlightModePage>
 {
+    public const string StaticId = "ext.flight-mode.anchors.gbs";
+
+    public string Id => StaticId;
+
     public void Extend(IFlightModePage context, CompositeDisposable contextDispose)
     {
         conn.Explorer.InitializedDevices.PopulateTo(

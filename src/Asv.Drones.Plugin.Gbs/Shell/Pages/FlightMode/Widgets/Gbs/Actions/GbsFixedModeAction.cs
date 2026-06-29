@@ -12,7 +12,7 @@ public sealed class GbsFixedModeAction<TWidget>(
     IUnitService unitService,
     IConfiguration configuration,
     IDialogService dialogService
-) : GbsFlightWidgetActionBase<TWidget>("gbs-fixed-mode")
+) : GbsFlightWidgetActionBase<TWidget>("fixed-mode")
     where TWidget : class, IGbsFlightWidget<GbsClientDevice>
 {
     public const MaterialIconKind ActionIcon = MaterialIconKind.CrosshairsGps;

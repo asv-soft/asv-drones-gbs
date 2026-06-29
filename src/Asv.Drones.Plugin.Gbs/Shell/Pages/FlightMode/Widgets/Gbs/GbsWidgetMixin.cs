@@ -63,6 +63,10 @@ public static class GbsWidgetMixin
                 IGbsFlightWidget,
                 GbsLocateBaseStationAction<IGbsFlightWidget>
             >();
+            builder.FlightMode.Pages.Shell.GbsPlugin.AppBuilder.Extensions.Register<
+                IGbsFlightWidget,
+                ConfigureTelemetryAction<IGbsFlightWidget>
+            >();
 
             builder.Gbs.RegisterDialogs();
         }

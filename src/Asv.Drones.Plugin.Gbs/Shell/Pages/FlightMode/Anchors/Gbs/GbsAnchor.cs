@@ -21,7 +21,6 @@ public class GbsAnchor : DeviceAnchor<GbsAnchor>
         IsVisible = true;
         UseMapRotation = false;
         pos.Position.DistinctUntilChanged()
-            .ThrottleLast(TimeSpan.FromMilliseconds(200))
             .ObserveOnUIThreadDispatcher()
             .Subscribe(x => Location = x)
             .DisposeItWith(Disposable);

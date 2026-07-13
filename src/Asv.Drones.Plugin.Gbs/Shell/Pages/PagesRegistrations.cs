@@ -26,7 +26,6 @@ public static class PagesRegistrations
 
         public Builder RegisterDefault()
         {
-            this.RegisterDevicePages();
             this.RegisterGbsSettings();
             this.RegisterFlightMode();
             return this;

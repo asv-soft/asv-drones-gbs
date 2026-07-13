@@ -6,7 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugin", "Plugin", "{08014F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Plugin.Gbs", "Asv.Drones.Plugin.Gbs\Asv.Drones.Plugin.Gbs.csproj", "{F86E494E-AF6B-439F-98E5-F8D584C8C9E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Plugin.Gbs.Preview", "Asv.Drones.Plugin.Gbs.Preview\Asv.Drones.Plugin.Gbs.Preview.csproj", "{D60E7D00-4C0F-4AC8-9FDA-8C08B952BA68}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Plugin.Gbs.App", "Asv.Drones.Plugin.Gbs.App\Asv.Drones.Plugin.Gbs.App.csproj", "{D60E7D00-4C0F-4AC8-9FDA-8C08B952BA68}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7EFFDE76-4C6C-429D-8420-B7C5168E910D}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,17 +14,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
 		Directory.Build.props = Directory.Build.props
-		.run\GUI.run.xml = .run\GUI.run.xml
+		.run\GUI(Linux-macOS).run.xml = .run\GUI(Linux-macOS).run.xml
+		.run\GUI(Windows).run.xml = .run\GUI(Windows).run.xml
 		.run\Service.run.xml = .run\Service.run.xml
 		.run\GUI+Service.run.xml = .run\GUI+Service.run.xml
-		.run\GUI(Windows).run.xml = .run\GUI(Windows).run.xml
+		.run\App.run.xml = .run\App.run.xml
+		.run\App+Service.run.xml = .run\App+Service.run.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Gbs.Contracts", "Asv.Drones.Gbs.Contracts\Asv.Drones.Gbs.Contracts.csproj", "{14D93A1F-9908-4857-83A9-7E8B3C22475D}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{2D38987C-E728-45D9-82A6-4ADCD1D206B0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Api", "..\..\asv-drones\src\Asv.Drones.Api\Asv.Drones.Api.csproj", "{E60BCD70-0F5F-4201-883D-4F895F29F6E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,14 +46,9 @@ Global
 		{14D93A1F-9908-4857-83A9-7E8B3C22475D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14D93A1F-9908-4857-83A9-7E8B3C22475D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14D93A1F-9908-4857-83A9-7E8B3C22475D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E60BCD70-0F5F-4201-883D-4F895F29F6E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E60BCD70-0F5F-4201-883D-4F895F29F6E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E60BCD70-0F5F-4201-883D-4F895F29F6E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E60BCD70-0F5F-4201-883D-4F895F29F6E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F86E494E-AF6B-439F-98E5-F8D584C8C9E7} = {08014F0A-0972-4E73-93F4-7DF08F3ED5EC}
 		{D60E7D00-4C0F-4AC8-9FDA-8C08B952BA68} = {08014F0A-0972-4E73-93F4-7DF08F3ED5EC}
-		{E60BCD70-0F5F-4201-883D-4F895F29F6E5} = {2D38987C-E728-45D9-82A6-4ADCD1D206B0}
 	EndGlobalSection
 EndGlobal

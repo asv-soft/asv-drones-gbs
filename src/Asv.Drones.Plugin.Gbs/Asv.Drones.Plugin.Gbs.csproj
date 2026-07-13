@@ -32,11 +32,18 @@
             CA1851
         </WarningsAsErrors>
     </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <OutputPath>$(SolutionDir)..\..\asv-drones\src\Asv.Drones.Desktop\bin\Debug\$(TargetFramework)\plugins\Asv.Drones.Plugin.Gbs\</OutputPath>
+    <PropertyGroup>
+        <AsvDronesDesktopOutputPath>$(MSBuildThisFileDirectory)..\..\..\asv-drones\src\Asv.Drones.Desktop\bin\$(Configuration)\$(TargetFramework)\</AsvDronesDesktopOutputPath>
+        <AsvDronesPluginOutputPath>$(AsvDronesDesktopOutputPath)plugins\Asv.Drones.Plugin.Gbs\</AsvDronesPluginOutputPath>
+        <AsvDronesPluginRuntimeOutputPath>$(AsvDronesPluginOutputPath)$(TargetFramework)\</AsvDronesPluginRuntimeOutputPath>
     </PropertyGroup>
-    <ItemGroup>
+    <ItemGroup Condition="'$(UseLocalAsvDrones)' == 'true'">
         <ProjectReference Include="..\..\..\asv-drones\src\Asv.Drones.Api\Asv.Drones.Api.csproj" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(UseLocalAsvDrones)' != 'true'">
+        <PackageReference Include="Asv.Drones.Api" Version="$(AsvDronesApiVersion)" />
+    </ItemGroup>
+    <ItemGroup>
         <ProjectReference Include="..\Asv.Drones.Gbs.Contracts\Asv.Drones.Gbs.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
@@ -80,4 +87,20 @@
       <AdditionalFiles Include="Shell\Pages\FlightMode\Actions\Dialogs\SetCoordsNameDialogView.axaml" />
       <AdditionalFiles Include="Shell\Pages\Settings\Subpages\Gbs\SavedCoordinates\Dialogs\AddCoords\AddCoordsRecordDialogView.axaml" />
     </ItemGroup>
+
+    <Target Name="CopyPluginToAsvDrones" AfterTargets="GenerateNuspec" Condition="Exists('$(AsvDronesDesktopOutputPath)')">
+      <PropertyGroup>
+        <PluginPackagePath>$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg</PluginPackagePath>
+      </PropertyGroup>
+      <ItemGroup>
+        <PluginOutput Include="$(TargetDir)**\*" />
+      </ItemGroup>
+      <RemoveDir Directories="$(AsvDronesPluginOutputPath)" />
+      <MakeDir Directories="$(AsvDronesPluginRuntimeOutputPath)" />
+      <Copy
+        SourceFiles="@(PluginOutput)"
+        DestinationFiles="@(PluginOutput->'$(AsvDronesPluginRuntimeOutputPath)%(RecursiveDir)%(Filename)%(Extension)')"
+        SkipUnchangedFiles="true" />
+      <Copy SourceFiles="$(PluginPackagePath)" DestinationFolder="$(AsvDronesPluginOutputPath)" />
+    </Target>
 </Project>

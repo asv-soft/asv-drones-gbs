@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Asv.Avalonia;
+using Asv.Avalonia.Charts;
 using Asv.Avalonia.GeoMap;
 using Asv.Avalonia.IO;
+using Asv.Avalonia.Launcher.Ready;
 using Asv.Avalonia.Plugins;
 using Asv.Drones.Api;
 using Avalonia;
 using Avalonia.Controls;
 
-namespace Asv.Drones.Plugin.Gbs.Preview;
+namespace Asv.Drones.Plugin.Gbs.App;
 
 sealed class Program
 {
@@ -23,7 +25,7 @@ sealed class Program
             BuildAvaloniaApp()
                 .StartWithClassicDesktopLifetime(args, ShutdownMode.OnMainWindowClose);
             AppHost.Instance.StopAsync().GetAwaiter().GetResult();
-            Task.Factory.StartNew(AppHost.Instance.Dispose).GetAwaiter().GetResult();
+            Task.Run(AppHost.Instance.Dispose).GetAwaiter().GetResult();
         }
         catch (Exception e)
         {
@@ -35,11 +37,15 @@ sealed class Program
     public static AppBuilder BuildAvaloniaApp()
     {
         return AppBuilder
-            .Configure<App>()
+            .Configure<global::Asv.Drones.App>()
             .UsePlatformDetect()
+#if DEBUG
+            .WithDeveloperTools()
+#endif
             .With(new Win32PlatformOptions { OverlayPopups = true }) // Windows
             .With(new X11PlatformOptions { OverlayPopups = true, UseDBusFilePicker = false }) // Unix/Linux
             .With(new AvaloniaNativePlatformOptions { OverlayPopups = true }) // Mac
+            .WithInterFont()
             .LogToTrace()
             .UseAsv(builder =>
             {
@@ -52,7 +58,7 @@ sealed class Program
                         {
                             svc.RegisterAppArgsStore();
                             svc.RegisterAppInfo(info =>
-                                info.FillFromAssembly(typeof(App).Assembly)
+                                info.FillFromAssembly(typeof(Program).Assembly)
                             );
                             svc.RegisterAppPath();
                             svc.RegisterRestartFeature();
@@ -93,11 +99,10 @@ sealed class Program
                         configure.RegisterShell();
                     })
                     .RegisterModuleGeoMap()
+                    .RegisterModuleCharts()
                     .RegisterModuleIo()
-                    /*
                     .RegisterLauncher(cfg => cfg.IsOptional())
-                    .RegisterDronesApp();
-                     */
+                    .RegisterDronesApp()
                     .RegisterGbsPlugin();
             });
     }

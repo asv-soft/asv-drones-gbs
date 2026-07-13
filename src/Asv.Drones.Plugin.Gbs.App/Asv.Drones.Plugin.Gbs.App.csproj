@@ -29,6 +29,8 @@
 
     <ItemGroup>
         <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)"/>
+        <PackageReference Include="Asv.Avalonia.LauncherReady" Version="$(AsvAvaloniaVersion)"/>
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1"/>
         <PackageReference Include="Roslynator.Analyzers" Version="$(RoslynAnalyzersVersion)">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -39,9 +41,30 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup Condition="'$(UseLocalAsvDrones)' != 'true'">
+        <PackageReference Include="Asv.Drones.Api" Version="$(AsvDronesApiVersion)" />
+        <PackageReference Include="Asv.Drones" Version="$(AsvDronesVersion)" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(UseLocalAsvDrones)' == 'true'">
+      <ProjectReference Include="..\..\..\asv-drones\src\Asv.Drones.Api\Asv.Drones.Api.csproj" />
+      <ProjectReference Include="..\..\..\asv-drones\src\Asv.Drones\Asv.Drones.csproj" />
+    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Asv.Drones.Plugin.Gbs\Asv.Drones.Plugin.Gbs.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="appsettings.Development.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="appsettings.Production.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

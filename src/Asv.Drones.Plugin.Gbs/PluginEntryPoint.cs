@@ -7,6 +7,6 @@ public class PluginEntryPoint : IPluginAppBuilder
 {
     public void Register(IHostApplicationBuilder builder)
     {
-        builder.UseGbsPlugin();
+        builder.RegisterGbsPlugin();
     }
 }

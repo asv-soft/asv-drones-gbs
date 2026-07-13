@@ -40,9 +40,6 @@
         <ProjectReference Include="..\Asv.Drones.Gbs.Contracts\Asv.Drones.Gbs.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Shell\Pages\Settings\Subpages\" />
-    </ItemGroup>
-    <ItemGroup>
       <Compile Update="Shell\Pages\Devices\Gbs\GbsDevicePageView.axaml.cs">
         <DependentUpon>GbsDevicePageView.axaml</DependentUpon>
         <SubType>Code</SubType>
@@ -72,12 +69,15 @@
       </PackageReference>
     </ItemGroup>
     <ItemGroup>
-      <AdditionalFiles Include="Shell\Pages\Settings\Subpages\SavedCoordinates\SettingsSavedCoordsView.axaml" />
-    </ItemGroup>
-    <ItemGroup>
       <EmbeddedResource Update="RS.resx">
         <Generator>PublicResXFileCodeGenerator</Generator>
         <LastGenOutput>RS.Designer.cs</LastGenOutput>
       </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup>
+      <AdditionalFiles Include="Shell\Pages\FlightMode\Actions\Dialogs\AutoModeDialogView.axaml" />
+      <AdditionalFiles Include="Shell\Pages\FlightMode\Actions\Dialogs\FixedModeDialogView.axaml" />
+      <AdditionalFiles Include="Shell\Pages\FlightMode\Actions\Dialogs\SetCoordsNameDialogView.axaml" />
+      <AdditionalFiles Include="Shell\Pages\Settings\Subpages\Gbs\SavedCoordinates\Dialogs\AddCoords\AddCoordsRecordDialogView.axaml" />
     </ItemGroup>
 </Project>

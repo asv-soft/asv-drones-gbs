@@ -22,7 +22,7 @@ public class GbsDeviceManagerExtension : IDeviceManagerExtension
     {
         if (id.DeviceClass == GbsClientDevice.DeviceClass)
         {
-            icon = GbsPluginMixin.DefaultIcon;
+            icon = GbsPluginRegistrations.DefaultIcon;
             return true;
         }
 

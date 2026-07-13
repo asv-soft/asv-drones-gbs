@@ -44,16 +44,61 @@ sealed class Program
             .UseAsv(builder =>
             {
                 builder
-                    .UseDefault()
-                    .UseAppInfo(configure => configure.FillFromAssembly(typeof(App).Assembly))
-                    .UseOptionalLogViewer()
-                    .UseModulePlugins(configure =>
-                        configure.WithApiPackage(typeof(MavlinkHost).Assembly)
-                    )
-                    .UseDesktopShell()
-                    .UseModuleGeoMap()
-                    .UseModuleIo()
-                    .UseGbsPlugin();
+                    .EnableLogging()
+                    .RegisterCore(core =>
+                    {
+                        core.RegisterControls();
+                        core.RegisterServices(svc =>
+                        {
+                            svc.RegisterAppArgsStore();
+                            svc.RegisterAppInfo(info =>
+                                info.FillFromAssembly(typeof(App).Assembly)
+                            );
+                            svc.RegisterAppPath();
+                            svc.RegisterRestartFeature();
+                            svc.RegisterDialogs();
+                            svc.RegisterExtensions();
+                            svc.RegisterFileAssociation();
+                            svc.RegisterUnhandledExceptionsHandler();
+                            svc.RegisterHotKeys();
+                            svc.RegisterLocalizationService();
+                            svc.RegisterLogViewer();
+                            svc.RegisterLogToFile();
+                            svc.RegisterSearchService();
+                            svc.RegisterShellHost();
+                            svc.RegisterSoloRun(soloRun => soloRun.WithArgumentForwarding());
+                            svc.RegisterThemeService();
+                            svc.RegisterTimeProvider();
+                            svc.RegisterUnitService();
+                            svc.RegisterUserConfig();
+                            svc.RegisterViewLocator();
+                        });
+                    })
+                    .RegisterDesktopShell()
+                    .RegisterModulePlugins(configure =>
+                    {
+                        configure.RegisterCore(core =>
+                            core.RegisterServices(services =>
+                            {
+                                services.RegisterPluginBootloader(bootloader =>
+                                    bootloader.WithApiPackage(typeof(IMavlinkHost).Assembly)
+                                );
+                                services.RegisterPluginManager(options =>
+                                {
+                                    options.WithApiPackage(typeof(IMavlinkHost).Assembly);
+                                    options.WithPluginPrefix("Asv.Drones.Plugin.");
+                                });
+                            })
+                        );
+                        configure.RegisterShell();
+                    })
+                    .RegisterModuleGeoMap()
+                    .RegisterModuleIo()
+                    /*
+                    .RegisterLauncher(cfg => cfg.IsOptional())
+                    .RegisterDronesApp();
+                     */
+                    .RegisterGbsPlugin();
             });
     }
 }

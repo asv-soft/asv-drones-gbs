@@ -25,7 +25,7 @@ public class HomePageGbsDeviceItemAction : HomePageDeviceItemAction
 
         return new ActionViewModel(GbsDevicePageViewModel.PageId)
         {
-            Icon = GbsPluginMixin.DefaultIcon,
+            Icon = GbsPluginRegistrations.DefaultIcon,
             Header = "Gbs control",
             Description = "Ground base station device control",
             Command = new ReactiveCommand(

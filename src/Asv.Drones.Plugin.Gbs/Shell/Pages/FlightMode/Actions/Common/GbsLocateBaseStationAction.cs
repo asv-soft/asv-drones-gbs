@@ -25,9 +25,10 @@ public sealed class GbsLocateBaseStationAction<TTarget>()
             return null;
         }
 
-        var item = CreateMenuItem("Locate GBS");
+        var item = CreateMenuItem(RS.GbsLocateBaseStationAction_Header);
+        item.StaysOpenOnClick = true;
         item.Icon = ActionIcon;
-        item.Description = "Move map to this GBS";
+        item.Description = RS.GbsLocateBaseStationAction_Description;
         item.Order = 90;
         item.Command = CreateCommand(
                 item,

@@ -24,9 +24,10 @@ public sealed class GbsIdleModeAction<TTarget>() : GbsModeActionBase<TTarget>("i
             return null;
         }
 
-        var item = CreateMenuItem("Disable RTK");
+        var item = CreateMenuItem(RS.GbsIdleModeAction_Header);
+        item.StaysOpenOnClick = true;
         item.Icon = ActionIcon;
-        item.Description = "Switch GBS to idle mode";
+        item.Description = RS.GbsIdleModeAction_Description;
         item.Order = 30;
 
         var canExecute = CreateModeCanExecute(

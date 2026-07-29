@@ -35,9 +35,9 @@ public sealed class GbsVisibleSatellitesTelemetryFactory : ITelemetryItemFactory
         )
         {
             Density = TileDensity.Inline,
-            Header = "All Satellites",
-            ShortHeader = "Sat",
-            Units = "sats",
+            Header = RS.GbsVisibleSatellitesTelemetry_Header,
+            ShortHeader = RS.GbsVisibleSatellitesTelemetry_ShortHeader,
+            Units = RS.GbsVisibleSatellitesTelemetry_Units,
             Icon = MaterialIconKind.SatelliteVariant,
         };
     }

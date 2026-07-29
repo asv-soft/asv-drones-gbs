@@ -30,8 +30,8 @@ public sealed class GbsDGpsRateTelemetryFactory : ITelemetryItemFactory
         return new TelemetryViewModel<ushort>(Id, rate, Update)
         {
             Density = TileDensity.Inline,
-            Header = "DGpsRate",
-            ShortHeader = "DGps",
+            Header = RS.GbsDGpsRateTelemetry_Header,
+            ShortHeader = RS.GbsDGpsRateTelemetry_ShortHeader,
             Icon = MaterialIconKind.Frequency,
         };
 

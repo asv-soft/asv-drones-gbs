@@ -29,9 +29,9 @@ public sealed class GbsFixedModeAction<TTarget>(
             return null;
         }
 
-        var item = CreateMenuItem("Enable Fixed");
+        var item = CreateMenuItem(RS.GbsFixedModeAction_Header);
         item.Icon = ActionIcon;
-        item.Description = "Start GBS fixed RTK mode";
+        item.Description = RS.GbsFixedModeAction_Description;
         item.Order = 20;
 
         var canExecute = CreateModeCanExecute(
@@ -58,10 +58,10 @@ public sealed class GbsFixedModeAction<TTarget>(
         );
         var dialog = new ContentDialog(viewModel)
         {
-            Title = "Fixed Mode",
-            PrimaryButtonText = "Ok",
+            Title = RS.GbsFixedModeAction_Dialog_Title,
+            PrimaryButtonText = RS.Common_Ok,
             IsSecondaryButtonEnabled = true,
-            CloseButtonText = "Cancel",
+            CloseButtonText = Asv.Avalonia.RS.DialogButton_Cancel,
         };
 
         viewModel.ApplyDialog(dialog);

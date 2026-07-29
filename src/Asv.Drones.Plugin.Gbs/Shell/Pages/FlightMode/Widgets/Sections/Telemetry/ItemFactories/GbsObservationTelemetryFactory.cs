@@ -33,8 +33,8 @@ public sealed class GbsObservationTelemetryFactory(IUnitService unitService) : I
         return new TelemetryViewModel<double>(Id, observation, Update)
         {
             Density = TileDensity.Inline,
-            Header = "Observation",
-            ShortHeader = "Observ",
+            Header = RS.GbsObservationTelemetry_Header,
+            ShortHeader = RS.GbsObservationTelemetry_ShortHeader,
             Icon = MaterialIconKind.ClockOutline,
         };
 

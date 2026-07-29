@@ -44,7 +44,7 @@ public sealed class AddCoordsRecordDialogViewModel : GbsDialogViewModelBase
         _name = new PropertyTextBoxReactive("name", _nameValue)
         {
             Header = RS.AddCoordsRecordDialogView_InputField_Name,
-            ShortHeader = RS.AddCoordsRecordDialogView_InputField_Name,
+            ShortHeader = RS.AddCoordsRecordDialogView_InputField_Name_ShortHeader,
             Icon = MaterialIconKind.Rename,
             IconColor = AsvColorKind.Info5,
         }
@@ -69,8 +69,8 @@ public sealed class AddCoordsRecordDialogViewModel : GbsDialogViewModelBase
             dialogService
         )
         {
-            Header = "Geo Point",
-            ShortHeader = "Geo Point",
+            Header = RS.AddCoordsRecordDialogView_InputField_GeoPoint,
+            ShortHeader = RS.AddCoordsRecordDialogView_InputField_GeoPoint_ShortHeader,
             Icon = MaterialIconKind.CrosshairsGps,
             IconColor = AsvColorKind.Info5,
         }
@@ -88,7 +88,7 @@ public sealed class AddCoordsRecordDialogViewModel : GbsDialogViewModelBase
         )
         {
             Header = RS.AddCoordsRecordDialogView_InputField_Accuracy,
-            ShortHeader = RS.AddCoordsRecordDialogView_InputField_Accuracy,
+            ShortHeader = RS.AddCoordsRecordDialogView_InputField_Accuracy_ShortHeader,
             Icon = MaterialIconKind.CompareHorizontal,
             IconColor = AsvColorKind.Info5,
         }

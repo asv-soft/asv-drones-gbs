@@ -2,9 +2,9 @@
     <PropertyGroup>
         <ProductVersion>2.1.0-rc.1</ProductVersion>
         <AvaloniaVersion>12.0.4</AvaloniaVersion>
-        <AsvAvaloniaVersion>3.0.0-dev.87</AsvAvaloniaVersion>
-        <AsvDronesVersion>3.0.0-dev.9</AsvDronesVersion>
-        <AsvDronesApiVersion>3.0.0-dev.9</AsvDronesApiVersion>
+        <AsvAvaloniaVersion>3.0.0-dev.88</AsvAvaloniaVersion>
+        <AsvDronesVersion>3.0.0-dev.10</AsvDronesVersion>
+        <AsvDronesApiVersion>3.0.0-dev.10</AsvDronesApiVersion>
         <DotNetVersion>10.0.0</DotNetVersion>
         <TargetFrameworkValue>net10.0</TargetFrameworkValue>
         <AsvCommonVersion>3.6.0-dev.31</AsvCommonVersion>

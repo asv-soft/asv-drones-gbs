@@ -24,9 +24,10 @@ public sealed class GbsCancelModeAction<TTarget>() : GbsModeActionBase<TTarget>(
             return null;
         }
 
-        var item = CreateMenuItem("Cancel");
+        var item = CreateMenuItem(RS.GbsCancelModeAction_Header);
+        item.StaysOpenOnClick = true;
         item.Icon = ActionIcon;
-        item.Description = "Cancel GBS mode transition";
+        item.Description = RS.GbsCancelModeAction_Description;
         item.Order = 40;
 
         var canExecute = CreateModeCanExecute(

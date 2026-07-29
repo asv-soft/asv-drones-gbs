@@ -69,11 +69,407 @@ namespace Asv.Drones.Plugin.Gbs {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Acc.
+        /// </summary>
+        public static string AddCoordsRecordDialogView_InputField_Accuracy_ShortHeader {
+            get {
+                return ResourceManager.GetString("AddCoordsRecordDialogView_InputField_Accuracy_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Geo Point.
+        /// </summary>
+        public static string AddCoordsRecordDialogView_InputField_GeoPoint {
+            get {
+                return ResourceManager.GetString("AddCoordsRecordDialogView_InputField_GeoPoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Geo.
+        /// </summary>
+        public static string AddCoordsRecordDialogView_InputField_GeoPoint_ShortHeader {
+            get {
+                return ResourceManager.GetString("AddCoordsRecordDialogView_InputField_GeoPoint_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
         public static string AddCoordsRecordDialogView_InputField_Name {
             get {
                 return ResourceManager.GetString("AddCoordsRecordDialogView_InputField_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string AddCoordsRecordDialogView_InputField_Name_ShortHeader {
+            get {
+                return ResourceManager.GetString("AddCoordsRecordDialogView_InputField_Name_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Accuracy.
+        /// </summary>
+        public static string AutoModeDialogView_Accuracy_Header {
+            get {
+                return ResourceManager.GetString("AutoModeDialogView_Accuracy_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acc.
+        /// </summary>
+        public static string AutoModeDialogView_Accuracy_ShortHeader {
+            get {
+                return ResourceManager.GetString("AutoModeDialogView_Accuracy_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Observation.
+        /// </summary>
+        public static string AutoModeDialogView_Observation_Header {
+            get {
+                return ResourceManager.GetString("AutoModeDialogView_Observation_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Observ.
+        /// </summary>
+        public static string AutoModeDialogView_Observation_ShortHeader {
+            get {
+                return ResourceManager.GetString("AutoModeDialogView_Observation_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        public static string Common_Ok {
+            get {
+                return ResourceManager.GetString("Common_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Accuracy.
+        /// </summary>
+        public static string FixedModeDialogView_Accuracy_Header {
+            get {
+                return ResourceManager.GetString("FixedModeDialogView_Accuracy_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acc.
+        /// </summary>
+        public static string FixedModeDialogView_Accuracy_ShortHeader {
+            get {
+                return ResourceManager.GetString("FixedModeDialogView_Accuracy_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Geo Point.
+        /// </summary>
+        public static string FixedModeDialogView_GeoPoint_Header {
+            get {
+                return ResourceManager.GetString("FixedModeDialogView_GeoPoint_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Geo.
+        /// </summary>
+        public static string FixedModeDialogView_GeoPoint_ShortHeader {
+            get {
+                return ResourceManager.GetString("FixedModeDialogView_GeoPoint_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string FixedModeDialogView_NameDialog_Title {
+            get {
+                return ResourceManager.GetString("FixedModeDialogView_NameDialog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save current values.
+        /// </summary>
+        public static string FixedModeDialogView_SaveCurrentValues_Header {
+            get {
+                return ResourceManager.GetString("FixedModeDialogView_SaveCurrentValues_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        public static string FixedModeDialogView_SaveCurrentValues_ShortHeader {
+            get {
+                return ResourceManager.GetString("FixedModeDialogView_SaveCurrentValues_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saved coordinates.
+        /// </summary>
+        public static string FixedModeDialogView_SavedCoordinates_Header {
+            get {
+                return ResourceManager.GetString("FixedModeDialogView_SavedCoordinates_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saved.
+        /// </summary>
+        public static string FixedModeDialogView_SavedCoordinates_ShortHeader {
+            get {
+                return ResourceManager.GetString("FixedModeDialogView_SavedCoordinates_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Accuracy.
+        /// </summary>
+        public static string GbsAccuracyTelemetry_Header {
+            get {
+                return ResourceManager.GetString("GbsAccuracyTelemetry_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acc.
+        /// </summary>
+        public static string GbsAccuracyTelemetry_ShortHeader {
+            get {
+                return ResourceManager.GetString("GbsAccuracyTelemetry_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start GBS automatic RTK mode.
+        /// </summary>
+        public static string GbsAutoModeAction_Description {
+            get {
+                return ResourceManager.GetString("GbsAutoModeAction_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto Mode.
+        /// </summary>
+        public static string GbsAutoModeAction_Dialog_Title {
+            get {
+                return ResourceManager.GetString("GbsAutoModeAction_Dialog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable Auto.
+        /// </summary>
+        public static string GbsAutoModeAction_Header {
+            get {
+                return ResourceManager.GetString("GbsAutoModeAction_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel GBS mode transition.
+        /// </summary>
+        public static string GbsCancelModeAction_Description {
+            get {
+                return ResourceManager.GetString("GbsCancelModeAction_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string GbsCancelModeAction_Header {
+            get {
+                return ResourceManager.GetString("GbsCancelModeAction_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DGPS rate.
+        /// </summary>
+        public static string GbsDGpsRateTelemetry_Header {
+            get {
+                return ResourceManager.GetString("GbsDGpsRateTelemetry_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DGPS.
+        /// </summary>
+        public static string GbsDGpsRateTelemetry_ShortHeader {
+            get {
+                return ResourceManager.GetString("GbsDGpsRateTelemetry_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start GBS fixed RTK mode.
+        /// </summary>
+        public static string GbsFixedModeAction_Description {
+            get {
+                return ResourceManager.GetString("GbsFixedModeAction_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fixed Mode.
+        /// </summary>
+        public static string GbsFixedModeAction_Dialog_Title {
+            get {
+                return ResourceManager.GetString("GbsFixedModeAction_Dialog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable Fixed.
+        /// </summary>
+        public static string GbsFixedModeAction_Header {
+            get {
+                return ResourceManager.GetString("GbsFixedModeAction_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch GBS to idle mode.
+        /// </summary>
+        public static string GbsIdleModeAction_Description {
+            get {
+                return ResourceManager.GetString("GbsIdleModeAction_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disable RTK.
+        /// </summary>
+        public static string GbsIdleModeAction_Header {
+            get {
+                return ResourceManager.GetString("GbsIdleModeAction_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move map to this GBS.
+        /// </summary>
+        public static string GbsLocateBaseStationAction_Description {
+            get {
+                return ResourceManager.GetString("GbsLocateBaseStationAction_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Locate GBS.
+        /// </summary>
+        public static string GbsLocateBaseStationAction_Header {
+            get {
+                return ResourceManager.GetString("GbsLocateBaseStationAction_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mode.
+        /// </summary>
+        public static string GbsModeTelemetry_Header {
+            get {
+                return ResourceManager.GetString("GbsModeTelemetry_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mode.
+        /// </summary>
+        public static string GbsModeTelemetry_ShortHeader {
+            get {
+                return ResourceManager.GetString("GbsModeTelemetry_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Observation.
+        /// </summary>
+        public static string GbsObservationTelemetry_Header {
+            get {
+                return ResourceManager.GetString("GbsObservationTelemetry_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Observ.
+        /// </summary>
+        public static string GbsObservationTelemetry_ShortHeader {
+            get {
+                return ResourceManager.GetString("GbsObservationTelemetry_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Number of satellites for each constellation.
+        /// </summary>
+        public static string GbsSatelliteCountSectionView_ToolTip {
+            get {
+                return ResourceManager.GetString("GbsSatelliteCountSectionView_ToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All Satellites.
+        /// </summary>
+        public static string GbsVisibleSatellitesTelemetry_Header {
+            get {
+                return ResourceManager.GetString("GbsVisibleSatellitesTelemetry_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sat.
+        /// </summary>
+        public static string GbsVisibleSatellitesTelemetry_ShortHeader {
+            get {
+                return ResourceManager.GetString("GbsVisibleSatellitesTelemetry_ShortHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to sats.
+        /// </summary>
+        public static string GbsVisibleSatellitesTelemetry_Units {
+            get {
+                return ResourceManager.GetString("GbsVisibleSatellitesTelemetry_Units", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string SetCoordsNameDialogView_Name_Header {
+            get {
+                return ResourceManager.GetString("SetCoordsNameDialogView_Name_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string SetCoordsNameDialogView_Name_ShortHeader {
+            get {
+                return ResourceManager.GetString("SetCoordsNameDialogView_Name_ShortHeader", resourceCulture);
             }
         }
         

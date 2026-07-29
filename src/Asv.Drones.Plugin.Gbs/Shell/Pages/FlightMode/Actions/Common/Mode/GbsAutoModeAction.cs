@@ -28,9 +28,9 @@ public sealed class GbsAutoModeAction<TTarget>(
             return null;
         }
 
-        var item = CreateMenuItem("Enable Auto");
+        var item = CreateMenuItem(RS.GbsAutoModeAction_Header);
         item.Icon = ActionIcon;
-        item.Description = "Start GBS automatic RTK mode";
+        item.Description = RS.GbsAutoModeAction_Description;
         item.Order = 10;
 
         var canExecute = CreateModeCanExecute(
@@ -53,10 +53,10 @@ public sealed class GbsAutoModeAction<TTarget>(
         using var viewModel = new AutoModeDialogViewModel(unitService, configuration);
         var dialog = new ContentDialog(viewModel)
         {
-            Title = "Auto Mode",
-            PrimaryButtonText = "Ok",
+            Title = RS.GbsAutoModeAction_Dialog_Title,
+            PrimaryButtonText = RS.Common_Ok,
             IsSecondaryButtonEnabled = true,
-            CloseButtonText = "Cancel",
+            CloseButtonText = Asv.Avalonia.RS.DialogButton_Cancel,
         };
 
         viewModel.ApplyDialog(dialog);

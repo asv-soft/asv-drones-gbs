@@ -16,7 +16,10 @@
     </Design.DataContext>
 
     <Border CornerRadius="{DynamicResource ControlCornerRadius}" ClipToBounds="True">
-        <Grid Background="Transparent" ToolTip.Tip="Number of satellites for each constellation">
+        <Grid
+            Background="Transparent"
+            ToolTip.Tip="{x:Static gbs:RS.GbsSatelliteCountSectionView_ToolTip}"
+        >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="50" Width="{Binding BeidouSats}" />
                 <ColumnDefinition MinWidth="50" Width="{Binding GalSats}" />

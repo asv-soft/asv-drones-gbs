@@ -50,4 +50,136 @@
     <data name="SettingsPage_Group_Gbs_FixedModeCoords_Title" xml:space="preserve">
         <value>Координаты для фиксированного режима</value>
     </data>
+    <data name="AutoModeDialogView_Accuracy_Header" xml:space="preserve">
+        <value>Точность</value>
+    </data>
+    <data name="AutoModeDialogView_Observation_Header" xml:space="preserve">
+        <value>Наблюдение</value>
+    </data>
+    <data name="FixedModeDialogView_GeoPoint_Header" xml:space="preserve">
+        <value>Координаты</value>
+    </data>
+    <data name="FixedModeDialogView_Accuracy_Header" xml:space="preserve">
+        <value>Точность</value>
+    </data>
+    <data name="FixedModeDialogView_NameDialog_Title" xml:space="preserve">
+        <value>Название</value>
+    </data>
+    <data name="Common_Ok" xml:space="preserve">
+        <value>ОК</value>
+    </data>
+    <data name="FixedModeDialogView_SavedCoordinates_Header" xml:space="preserve">
+        <value>Сохранённые координаты</value>
+    </data>
+    <data name="FixedModeDialogView_SavedCoordinates_ShortHeader" xml:space="preserve">
+        <value>Сохранённые</value>
+    </data>
+    <data name="FixedModeDialogView_SaveCurrentValues_Header" xml:space="preserve">
+        <value>Сохранить текущие значения</value>
+    </data>
+    <data name="FixedModeDialogView_SaveCurrentValues_ShortHeader" xml:space="preserve">
+        <value>Сохранить</value>
+    </data>
+    <data name="GbsAccuracyTelemetry_ShortHeader" xml:space="preserve">
+        <value>Точн.</value>
+    </data>
+    <data name="GbsAccuracyTelemetry_Header" xml:space="preserve">
+        <value>Точность</value>
+    </data>
+    <data name="GbsAutoModeAction_Header" xml:space="preserve">
+        <value>Включить авторежим</value>
+    </data>
+    <data name="GbsAutoModeAction_Description" xml:space="preserve">
+        <value>Запустить автоматический режим RTK для GBS</value>
+    </data>
+    <data name="GbsAutoModeAction_Dialog_Title" xml:space="preserve">
+        <value>Автоматический режим</value>
+    </data>
+    <data name="GbsCancelModeAction_Header" xml:space="preserve">
+        <value>Отменить</value>
+    </data>
+    <data name="GbsCancelModeAction_Description" xml:space="preserve">
+        <value>Отменить переключение режима GBS</value>
+    </data>
+    <data name="GbsDGpsRateTelemetry_Header" xml:space="preserve">
+        <value>Скорость DGPS</value>
+    </data>
+    <data name="GbsDGpsRateTelemetry_ShortHeader" xml:space="preserve">
+        <value>DGPS</value>
+    </data>
+    <data name="GbsFixedModeAction_Header" xml:space="preserve">
+        <value>Включить фиксированный режим</value>
+    </data>
+    <data name="GbsFixedModeAction_Description" xml:space="preserve">
+        <value>Запустить фиксированный режим RTK для GBS</value>
+    </data>
+    <data name="GbsFixedModeAction_Dialog_Title" xml:space="preserve">
+        <value>Фиксированный режим</value>
+    </data>
+    <data name="GbsIdleModeAction_Header" xml:space="preserve">
+        <value>Отключить RTK</value>
+    </data>
+    <data name="GbsIdleModeAction_Description" xml:space="preserve">
+        <value>Перевести GBS в режим ожидания</value>
+    </data>
+    <data name="GbsLocateBaseStationAction_Header" xml:space="preserve">
+        <value>Найти GBS</value>
+    </data>
+    <data name="GbsLocateBaseStationAction_Description" xml:space="preserve">
+        <value>Переместить карту к этой GBS</value>
+    </data>
+    <data name="GbsModeTelemetry_Header" xml:space="preserve">
+        <value>Режим</value>
+    </data>
+    <data name="GbsObservationTelemetry_Header" xml:space="preserve">
+        <value>Наблюдение</value>
+    </data>
+    <data name="GbsObservationTelemetry_ShortHeader" xml:space="preserve">
+        <value>Набл.</value>
+    </data>
+    <data name="GbsVisibleSatellitesTelemetry_Header" xml:space="preserve">
+        <value>Все спутники</value>
+    </data>
+    <data name="GbsVisibleSatellitesTelemetry_ShortHeader" xml:space="preserve">
+        <value>Спут.</value>
+    </data>
+    <data name="GbsVisibleSatellitesTelemetry_Units" xml:space="preserve">
+        <value>спут.</value>
+    </data>
+    <data name="SetCoordsNameDialogView_Name_Header" xml:space="preserve">
+        <value>Название</value>
+    </data>
+    <data name="AddCoordsRecordDialogView_InputField_GeoPoint" xml:space="preserve">
+        <value>Координаты</value>
+    </data>
+    <data name="AddCoordsRecordDialogView_InputField_Name_ShortHeader" xml:space="preserve">
+        <value>Имя</value>
+    </data>
+    <data name="AddCoordsRecordDialogView_InputField_GeoPoint_ShortHeader" xml:space="preserve">
+        <value>Коорд.</value>
+    </data>
+    <data name="AddCoordsRecordDialogView_InputField_Accuracy_ShortHeader" xml:space="preserve">
+        <value>Точн.</value>
+    </data>
+    <data name="AutoModeDialogView_Accuracy_ShortHeader" xml:space="preserve">
+        <value>Точн.</value>
+    </data>
+    <data name="AutoModeDialogView_Observation_ShortHeader" xml:space="preserve">
+        <value>Набл.</value>
+    </data>
+    <data name="FixedModeDialogView_GeoPoint_ShortHeader" xml:space="preserve">
+        <value>Коорд.</value>
+    </data>
+    <data name="FixedModeDialogView_Accuracy_ShortHeader" xml:space="preserve">
+        <value>Точн.</value>
+    </data>
+    <data name="SetCoordsNameDialogView_Name_ShortHeader" xml:space="preserve">
+        <value>Имя</value>
+    </data>
+    <data name="GbsModeTelemetry_ShortHeader" xml:space="preserve">
+        <value>Реж.</value>
+    </data>
+    <data name="GbsSatelliteCountSectionView_ToolTip" xml:space="preserve">
+        <value>Количество спутников каждой навигационной системы</value>
+    </data>
 </root>

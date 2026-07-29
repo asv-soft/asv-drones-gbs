@@ -34,8 +34,8 @@ public sealed class GbsAccuracyTelemetryFactory(IUnitService unitService) : ITel
         return new TelemetryViewModel<GbsAccuracyTelemetryData>(Id, accuracy, Update)
         {
             Density = TileDensity.Inline,
-            Header = "Accuracy",
-            ShortHeader = "Acc",
+            Header = RS.GbsAccuracyTelemetry_Header,
+            ShortHeader = RS.GbsAccuracyTelemetry_ShortHeader,
             Icon = MaterialIconKind.CrosshairsGps,
         };
 

@@ -36,8 +36,8 @@ public sealed class GbsModeTelemetryFactory : ITelemetryItemFactory
         )
         {
             Density = TileDensity.Inline,
-            Header = "Mode",
-            ShortHeader = "Mode",
+            Header = RS.GbsModeTelemetry_Header,
+            ShortHeader = RS.GbsModeTelemetry_ShortHeader,
             Icon = MaterialIconKind.StateMachine,
         };
     }

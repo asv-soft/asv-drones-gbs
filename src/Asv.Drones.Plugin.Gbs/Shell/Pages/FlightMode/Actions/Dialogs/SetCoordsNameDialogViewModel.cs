@@ -25,8 +25,8 @@ public class SetCoordsNameDialogViewModel : GbsDialogViewModelBase
         _nameValue = new ReactiveProperty<string?>().DisposeItWith(Disposable);
         _name = new PropertyTextBoxReactive("name", _nameValue)
         {
-            Header = "Name",
-            ShortHeader = "Name",
+            Header = RS.SetCoordsNameDialogView_Name_Header,
+            ShortHeader = RS.SetCoordsNameDialogView_Name_ShortHeader,
             Icon = MaterialIconKind.Rename,
             IconColor = AsvColorKind.Info5,
         }

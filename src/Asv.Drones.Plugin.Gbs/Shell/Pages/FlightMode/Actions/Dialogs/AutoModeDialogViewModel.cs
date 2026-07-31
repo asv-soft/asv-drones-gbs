@@ -52,8 +52,8 @@ public class AutoModeDialogViewModel : GbsDialogViewModelBase
         ).DisposeItWith(Disposable);
         _accuracy = new PropertyUnitReactive("accuracy", distanceUnit, _accuracyValue)
         {
-            Header = "Accuracy",
-            ShortHeader = "Accuracy",
+            Header = RS.AutoModeDialogView_Accuracy_Header,
+            ShortHeader = RS.AutoModeDialogView_Accuracy_ShortHeader,
             Icon = MaterialIconKind.CompareHorizontal,
             IconColor = AsvColorKind.Info5,
         }
@@ -68,8 +68,8 @@ public class AutoModeDialogViewModel : GbsDialogViewModelBase
         ).DisposeItWith(Disposable);
         _observation = new PropertyUnitReactive("observation", timeUnit, _observationValue)
         {
-            Header = "Observation",
-            ShortHeader = "Observation",
+            Header = RS.AutoModeDialogView_Observation_Header,
+            ShortHeader = RS.AutoModeDialogView_Observation_ShortHeader,
             Icon = MaterialIconKind.Clockwise,
             IconColor = AsvColorKind.Info5,
         }

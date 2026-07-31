@@ -60,8 +60,8 @@ public class FixedModeDialogViewModel : GbsDialogViewModelBase
             _savedCoordinatesSelectionValue
         )
         {
-            Header = "Saved coordinates",
-            ShortHeader = "Saved",
+            Header = RS.FixedModeDialogView_SavedCoordinates_Header,
+            ShortHeader = RS.FixedModeDialogView_SavedCoordinates_ShortHeader,
             Icon = MaterialIconKind.MapMarkerRadius,
             IconColor = AsvColorKind.Info5,
         }
@@ -92,8 +92,8 @@ public class FixedModeDialogViewModel : GbsDialogViewModelBase
             dialogService
         )
         {
-            Header = "Geo Point",
-            ShortHeader = "Geo Point",
+            Header = RS.FixedModeDialogView_GeoPoint_Header,
+            ShortHeader = RS.FixedModeDialogView_GeoPoint_ShortHeader,
             Icon = MaterialIconKind.CrosshairsGps,
             IconColor = AsvColorKind.Info5,
         }
@@ -108,8 +108,8 @@ public class FixedModeDialogViewModel : GbsDialogViewModelBase
         );
         _accuracy = new PropertyUnitReactive("accuracy", distanceUnit, _accuracyValue)
         {
-            Header = "Accuracy",
-            ShortHeader = "Accuracy",
+            Header = RS.FixedModeDialogView_Accuracy_Header,
+            ShortHeader = RS.FixedModeDialogView_Accuracy_ShortHeader,
             Icon = MaterialIconKind.CompareHorizontal,
             IconColor = AsvColorKind.Info5,
         }
@@ -121,11 +121,12 @@ public class FixedModeDialogViewModel : GbsDialogViewModelBase
 
         _saveCurrentValues = new PropertyButtonViewModel(
             "save-current-values",
-            AddNewSavedCoordsAsync
+            AddNewSavedCoordsAsync,
+            IsValid
         )
         {
-            Header = "Save current values",
-            ShortHeader = "Save",
+            Header = RS.FixedModeDialogView_SaveCurrentValues_Header,
+            ShortHeader = RS.FixedModeDialogView_SaveCurrentValues_ShortHeader,
             Icon = MaterialIconKind.Add,
             IconColor = AsvColorKind.Success,
         }
@@ -164,10 +165,10 @@ public class FixedModeDialogViewModel : GbsDialogViewModelBase
         using var vm = new SetCoordsNameDialogViewModel();
         var dialog = new ContentDialog(vm)
         {
-            Title = "Name",
-            PrimaryButtonText = "Ok",
+            Title = RS.FixedModeDialogView_NameDialog_Title,
+            PrimaryButtonText = RS.Common_Ok,
             IsSecondaryButtonEnabled = true,
-            CloseButtonText = "Cancel",
+            CloseButtonText = Asv.Avalonia.RS.DialogButton_Cancel,
         };
 
         var result = await dialog.ShowAsync();

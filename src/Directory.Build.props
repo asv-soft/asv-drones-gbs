@@ -1,17 +1,17 @@
 <Project>
     <PropertyGroup>
-        <ProductVersion>2.1.0-rc.1</ProductVersion>
+        <ProductVersion>2.1.0</ProductVersion>
         <AvaloniaVersion>12.0.4</AvaloniaVersion>
-        <AsvAvaloniaVersion>3.0.0-dev.88</AsvAvaloniaVersion>
-        <AsvDronesVersion>3.0.0-dev.10</AsvDronesVersion>
-        <AsvDronesApiVersion>3.0.0-dev.10</AsvDronesApiVersion>
+        <AsvAvaloniaVersion>3.0.2</AsvAvaloniaVersion>
+        <AsvDronesVersion>3.0.0</AsvDronesVersion>
+        <AsvDronesApiVersion>3.0.0</AsvDronesApiVersion>
         <DotNetVersion>10.0.0</DotNetVersion>
         <TargetFrameworkValue>net10.0</TargetFrameworkValue>
-        <AsvCommonVersion>3.6.0-dev.31</AsvCommonVersion>
+        <AsvCommonVersion>3.6.0</AsvCommonVersion>
         <AsvGnssVersion>2.1.0</AsvGnssVersion>
         <AsvSdrVersion>1.5.26</AsvSdrVersion>
         <AsvHalVersion>1.0.10</AsvHalVersion>
-        <AsvMavlinkVersion>4.2.0</AsvMavlinkVersion>
+        <AsvMavlinkVersion>4.3.0</AsvMavlinkVersion>
         <RoslynAnalyzersVersion>4.14.0</RoslynAnalyzersVersion>
         <StylecopAnalyzersVersion>1.1.118</StylecopAnalyzersVersion>
         <UseLocalAsvDrones Condition="'$(UseLocalAsvDrones)' == ''">false</UseLocalAsvDrones>

@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish (osx-arm64)" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" include_all_content_for_self_extract="true" include_native_libs_for_self_extract="true" platform="Any CPU" produce_single_file="true" self_contained="true" target_folder="$PROJECT_DIR$/Asv.Drones.Gbs/bin/Release/net10.0/osx-arm64/publish" target_framework="net10.0" uuid_high="-5971681279354778135" uuid_low="-6633442721262097158">
+      <runtimes>
+        <item value="osx-arm64" />
+      </runtimes>
+    </riderPublish>
+    <method v="2" />
+  </configuration>
+</component>

@@ -4,14 +4,16 @@ using Asv.Drones.Gbs.Gpio;
 using Asv.Drones.Rsga;
 using Microsoft.Extensions.Hosting;
 
+var environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+#if DEBUG
+environmentName ??= "Virtual";
+#else
+environmentName ??= Environments.Production;
+#endif
+
 var builder = Host.CreateApplicationBuilder(
     new HostApplicationBuilderSettings {
-#if DEBUG
-        // EnvironmentName = Environments.Development,
-        EnvironmentName = "Virtual",
-#else
-        EnvironmentName = Environments.Production,
-#endif
+        EnvironmentName = environmentName,
 #pragma warning disable SA1413
         Args = args }
 #pragma warning restore SA1413

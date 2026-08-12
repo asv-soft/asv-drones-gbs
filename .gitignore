@@ -352,3 +352,14 @@ MigrationBackup/
 # JetBrains IDE settings
 /.idea/
 /src/.idea/
+
+# macOS metadata
+**/.DS_Store
+
+# AI Factory local profiles (this repository uses Codex app via .agents/)
+/.claude/agents/
+/.claude/skills/
+/.claude/settings.local.json
+/.codex/agents/
+/.codex/skills/
+/.opencode/skills/

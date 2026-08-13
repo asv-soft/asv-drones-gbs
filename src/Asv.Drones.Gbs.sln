@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Gbs.Contracts", "Asv.Drones.Gbs.Contracts\Asv.Drones.Gbs.Contracts.csproj", "{14D93A1F-9908-4857-83A9-7E8B3C22475D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asv.Drones.Gbs.Tests", "Asv.Drones.Gbs.Tests\Asv.Drones.Gbs.Tests.csproj", "{C0A9F0AE-8F53-4B8F-A31D-A9E46E31AC6B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{14D93A1F-9908-4857-83A9-7E8B3C22475D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14D93A1F-9908-4857-83A9-7E8B3C22475D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14D93A1F-9908-4857-83A9-7E8B3C22475D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0A9F0AE-8F53-4B8F-A31D-A9E46E31AC6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0A9F0AE-8F53-4B8F-A31D-A9E46E31AC6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0A9F0AE-8F53-4B8F-A31D-A9E46E31AC6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0A9F0AE-8F53-4B8F-A31D-A9E46E31AC6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F86E494E-AF6B-439F-98E5-F8D584C8C9E7} = {08014F0A-0972-4E73-93F4-7DF08F3ED5EC}

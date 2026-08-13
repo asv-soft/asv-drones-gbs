@@ -38,7 +38,7 @@
         <PackageReference Include="Asv.Sdr" Version="$(AsvSdrVersion)" />
         <PackageReference Include="Asv.Sdr.LimeSdr" Version="$(AsvSdrVersion)" />
         <PackageReference Include="Asv.Hal" Version="$(AsvHalVersion)" />
-        <PackageReference Include="DotNext.IO" Version="5.20.0" />
+        <PackageReference Include="DotNext.IO" Version="6.2.1" />
 
 
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(DotNetVersion)" />

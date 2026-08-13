@@ -12,8 +12,7 @@ environmentName ??= Environments.Production;
 #endif
 
 var builder = Host.CreateApplicationBuilder(
-    new HostApplicationBuilderSettings {
-        EnvironmentName = environmentName,
+    new HostApplicationBuilderSettings { EnvironmentName = environmentName,
 #pragma warning disable SA1413
         Args = args }
 #pragma warning restore SA1413
